@@ -1,0 +1,26 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Vite
+dist/
+dist-ssr/
+*.local
+
+# Rust / Tauri
+src-tauri/target/
+src-tauri/gen/schemas/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Claude Code (local-only settings)
+.claude/settings.local.json
