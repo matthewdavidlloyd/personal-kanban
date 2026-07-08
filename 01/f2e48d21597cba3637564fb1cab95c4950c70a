@@ -1,0 +1,37 @@
+src/components/SettingsModal.tsx
+  s_05f6a9f0a45185::t_40fc6eb8b1fd86 1-106
+src/App.tsx
+  s_05f6a9f0a45185::t_8ff13ff8db2e66 1,4-5,7,17-19,21-34,37,58,63-88,98,128-142,145-146
+src-tauri/capabilities/default.json
+  s_05f6a9f0a45185::t_7246350ad870f8 12-19,21
+src/styles.css
+  s_05f6a9f0a45185::t_530828e97cb394 437-566
+src/components/IssueModal.tsx
+  s_05f6a9f0a45185::t_a85198f816cfda 3,12-17,25-29,35,45-55,91-128
+  s_05f6a9f0a45185::t_409fab39351e8d 129
+src/components/Toast.tsx
+  s_05f6a9f0a45185::t_ad6e31fe1186d0 1-21
+src/claude.ts
+  s_05f6a9f0a45185::t_98d6bb3cf3db95 1-8,13-23,25-80
+  s_05f6a9f0a45185::t_f53e53289051c3 9-12,24
+src/time.ts
+  s_05f6a9f0a45185::t_11b3ca372ca928 1-13
+src-tauri/capabilities/claude-dispatch.json
+  s_05f6a9f0a45185::t_7772b861cb4e9d 1-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "01f2e48d21597cba3637564fb1cab95c4950c70a",
+  "prompts": {},
+  "sessions": {
+    "s_05f6a9f0a45185": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "55f91957-cc29-4abf-844d-a43fbc3b5cfc",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Matt Lloyd <matt@wealthvector.com>"
+    }
+  }
+}
