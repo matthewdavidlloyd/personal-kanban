@@ -3,11 +3,14 @@
 
 export type Priority = "urgent" | "high" | "medium" | "low";
 
+export type WorkType = "review" | "coding" | "admin";
+
 export interface Card {
   id: string; // crypto.randomUUID()
   title: string;
   description: string;
   priority: Priority;
+  workType: WorkType;
   createdAt: string; // ISO
   updatedAt: string; // ISO
   /** Informational breadcrumb of the last dispatch — NOT a live status. */
