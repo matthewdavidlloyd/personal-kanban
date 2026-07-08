@@ -11,6 +11,7 @@ interface IssueModalProps {
   onSubmit: (
     title: string,
     description: string,
+    note: string,
     priority: Priority,
     workType: WorkType,
   ) => void;
@@ -23,6 +24,7 @@ interface IssueModalProps {
   onSend?: (
     title: string,
     description: string,
+    note: string,
     priority: Priority,
     workType: WorkType,
   ) => Promise<void>;
@@ -43,6 +45,7 @@ export function IssueModal({
   const isEdit = card !== undefined;
   const [title, setTitle] = useState(card?.title ?? "");
   const [description, setDescription] = useState(card?.description ?? "");
+  const [note, setNote] = useState(card?.note ?? "");
   const [priority, setPriority] = useState<Priority>(
     card?.priority ?? DEFAULT_PRIORITY,
   );
@@ -56,7 +59,7 @@ export function IssueModal({
 
   function save() {
     if (!canSave) return;
-    onSubmit(title.trim(), description, priority, workType);
+    onSubmit(title.trim(), description, note.trim(), priority, workType);
     onClose();
   }
 
@@ -65,7 +68,7 @@ export function IssueModal({
     setSending(true);
     try {
       // Parent persists edits, dispatches, and records the agent (or toasts).
-      await onSend(title.trim(), description, priority, workType);
+      await onSend(title.trim(), description, note.trim(), priority, workType);
     } finally {
       setSending(false);
     }
@@ -92,6 +95,16 @@ export function IssueModal({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="What needs doing?"
+          />
+        </label>
+
+        <label className="field">
+          <span className="field-label">Note</span>
+          <input
+            className="field-input"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Short status (optional)"
           />
         </label>
 

@@ -29,6 +29,7 @@ export const CardItem = forwardRef<HTMLDivElement, CardItemProps>(
     return (
       <div ref={ref} className={classes.join(" ")} {...rest}>
         <div className="card-title">{card.title}</div>
+        {card.note && <div className="card-note">{card.note}</div>}
         <div className="card-meta">
           <span className={`priority-badge priority-${priority}`}>
             {PRIORITY_LABELS[priority]}

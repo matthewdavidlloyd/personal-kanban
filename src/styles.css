@@ -292,6 +292,14 @@ button {
   overflow-wrap: anywhere;
 }
 
+.card-note {
+  margin-top: 6px;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
 .card-meta {
   display: flex;
   align-items: center;

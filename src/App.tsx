@@ -77,10 +77,11 @@ function AppInner() {
       cardId: string,
       title: string,
       description: string,
+      note: string,
       priority: Priority,
       workType: WorkType,
     ) => {
-      actions.updateCard(cardId, title, description, priority, workType);
+      actions.updateCard(cardId, title, description, note, priority, workType);
       try {
         const { id } = await dispatchToClaude({
           title,
@@ -138,11 +139,12 @@ function AppInner() {
 
       {modal?.type === "create" && (
         <IssueModal
-          onSubmit={(title, description, priority, workType) =>
+          onSubmit={(title, description, note, priority, workType) =>
             actions.addCard(
               modal.columnId,
               title,
               description,
+              note,
               priority,
               workType,
             )
@@ -154,11 +156,12 @@ function AppInner() {
       {modal?.type === "edit" && editingCard && (
         <IssueModal
           card={editingCard}
-          onSubmit={(title, description, priority, workType) =>
+          onSubmit={(title, description, note, priority, workType) =>
             actions.updateCard(
               editingCard.id,
               title,
               description,
+              note,
               priority,
               workType,
             )
@@ -168,8 +171,8 @@ function AppInner() {
           agent={editingCard.agent}
           canSend={projectDirValid}
           sendHint={sendHint}
-          onSend={(title, description, priority, workType) =>
-            handleSend(editingCard.id, title, description, priority, workType)
+          onSend={(title, description, note, priority, workType) =>
+            handleSend(editingCard.id, title, description, note, priority, workType)
           }
           onDismissAgent={() => actions.clearCardAgent(editingCard.id)}
         />
