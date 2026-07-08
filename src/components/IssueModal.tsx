@@ -1,13 +1,19 @@
 import { useState } from "react";
-import type { Card, Priority } from "../types";
+import type { Card, Priority, WorkType } from "../types";
 import { PRIORITIES, PRIORITY_LABELS, DEFAULT_PRIORITY } from "../priority";
+import { WORK_TYPES, WORK_TYPE_LABELS, DEFAULT_WORK_TYPE } from "../workType";
 import { timeAgo } from "../time";
 import { Modal } from "./Modal";
 
 interface IssueModalProps {
   /** Present in edit mode; absent in create mode. */
   card?: Card;
-  onSubmit: (title: string, description: string, priority: Priority) => void;
+  onSubmit: (
+    title: string,
+    description: string,
+    priority: Priority,
+    workType: WorkType,
+  ) => void;
   onDelete?: () => void;
   onClose: () => void;
   // Dispatch (edit mode only):
@@ -18,6 +24,7 @@ interface IssueModalProps {
     title: string,
     description: string,
     priority: Priority,
+    workType: WorkType,
   ) => Promise<void>;
   onDismissAgent?: () => void;
 }
@@ -39,6 +46,9 @@ export function IssueModal({
   const [priority, setPriority] = useState<Priority>(
     card?.priority ?? DEFAULT_PRIORITY,
   );
+  const [workType, setWorkType] = useState<WorkType>(
+    card?.workType ?? DEFAULT_WORK_TYPE,
+  );
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [sending, setSending] = useState(false);
 
@@ -46,7 +56,7 @@ export function IssueModal({
 
   function save() {
     if (!canSave) return;
-    onSubmit(title.trim(), description, priority);
+    onSubmit(title.trim(), description, priority, workType);
     onClose();
   }
 
@@ -55,7 +65,7 @@ export function IssueModal({
     setSending(true);
     try {
       // Parent persists edits, dispatches, and records the agent (or toasts).
-      await onSend(title.trim(), description, priority);
+      await onSend(title.trim(), description, priority, workType);
     } finally {
       setSending(false);
     }
@@ -100,6 +110,26 @@ export function IssueModal({
                 onClick={() => setPriority(p)}
               >
                 {PRIORITY_LABELS[p]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="field">
+          <span className="field-label">Type</span>
+          <div className="priority-picker" role="radiogroup" aria-label="Work type">
+            {WORK_TYPES.map((w) => (
+              <button
+                key={w}
+                type="button"
+                role="radio"
+                aria-checked={workType === w}
+                className={`priority-option worktype-${w}${
+                  workType === w ? " is-selected" : ""
+                }`}
+                onClick={() => setWorkType(w)}
+              >
+                {WORK_TYPE_LABELS[w]}
               </button>
             ))}
           </div>

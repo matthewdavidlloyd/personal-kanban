@@ -10,7 +10,7 @@ import {
 } from "react";
 import { boardReducer } from "./boardReducer";
 import { loadBoardState, saveBoardState } from "./store";
-import type { BoardState, Card, Priority, Settings } from "./types";
+import type { BoardState, Card, Priority, Settings, WorkType } from "./types";
 
 interface BoardActions {
   addCard: (
@@ -18,12 +18,14 @@ interface BoardActions {
     title: string,
     description: string,
     priority: Priority,
+    workType: WorkType,
   ) => void;
   updateCard: (
     cardId: string,
     title: string,
     description: string,
     priority: Priority,
+    workType: WorkType,
   ) => void;
   deleteCard: (cardId: string) => void;
   moveCard: (cardId: string, toColumnId: string, toIndex: number) => void;
@@ -70,10 +72,24 @@ export function BoardProvider({ children }: { children: ReactNode }) {
 
   const actions = useMemo<BoardActions>(
     () => ({
-      addCard: (columnId, title, description, priority) =>
-        dispatch({ type: "addCard", columnId, title, description, priority }),
-      updateCard: (cardId, title, description, priority) =>
-        dispatch({ type: "updateCard", cardId, title, description, priority }),
+      addCard: (columnId, title, description, priority, workType) =>
+        dispatch({
+          type: "addCard",
+          columnId,
+          title,
+          description,
+          priority,
+          workType,
+        }),
+      updateCard: (cardId, title, description, priority, workType) =>
+        dispatch({
+          type: "updateCard",
+          cardId,
+          title,
+          description,
+          priority,
+          workType,
+        }),
       deleteCard: (cardId) => dispatch({ type: "deleteCard", cardId }),
       moveCard: (cardId, toColumnId, toIndex) =>
         dispatch({ type: "moveCard", cardId, toColumnId, toIndex }),

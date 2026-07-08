@@ -1,4 +1,4 @@
-import type { BoardState, Card, Priority, Settings } from "./types";
+import type { BoardState, Card, Priority, Settings, WorkType } from "./types";
 
 export type BoardAction =
   | { type: "hydrate"; state: BoardState }
@@ -8,6 +8,7 @@ export type BoardAction =
       title: string;
       description: string;
       priority: Priority;
+      workType: WorkType;
     }
   | {
       type: "updateCard";
@@ -15,6 +16,7 @@ export type BoardAction =
       title: string;
       description: string;
       priority: Priority;
+      workType: WorkType;
     }
   | { type: "deleteCard"; cardId: string }
   | { type: "moveCard"; cardId: string; toColumnId: string; toIndex: number }
@@ -39,6 +41,7 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
         title: action.title,
         description: action.description,
         priority: action.priority,
+        workType: action.workType,
         createdAt: now,
         updatedAt: now,
       };
@@ -63,6 +66,7 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
             title: action.title,
             description: action.description,
             priority: action.priority,
+            workType: action.workType,
             updatedAt: nowIso(),
           },
         },

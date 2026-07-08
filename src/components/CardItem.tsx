@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import type { Card } from "../types";
 import { PRIORITY_LABELS, DEFAULT_PRIORITY } from "../priority";
+import { DEFAULT_WORK_TYPE } from "../workType";
 
 interface CardItemProps extends React.HTMLAttributes<HTMLDivElement> {
   card: Card;
@@ -17,12 +18,13 @@ interface CardItemProps extends React.HTMLAttributes<HTMLDivElement> {
  */
 export const CardItem = forwardRef<HTMLDivElement, CardItemProps>(
   ({ card, dragging, overlay, className, ...rest }, ref) => {
-    const classes = ["card"];
+    const priority = card.priority ?? DEFAULT_PRIORITY;
+    const workType = card.workType ?? DEFAULT_WORK_TYPE;
+
+    const classes = ["card", `card-worktype-${workType}`];
     if (dragging) classes.push("card-dragging");
     if (overlay) classes.push("card-overlay");
     if (className) classes.push(className);
-
-    const priority = card.priority ?? DEFAULT_PRIORITY;
 
     return (
       <div ref={ref} className={classes.join(" ")} {...rest}>

@@ -16,6 +16,9 @@
   --prio-high: #b45309;
   --prio-medium: #0c66e4;
   --prio-low: #5e6c84;
+  --wt-review: #ec4899; /* rose — someone else's work */
+  --wt-coding: #14b8a6; /* teal — my own dev work */
+  --wt-admin: #ca8a04; /* amber — classic postit-yellow for admin */
   --shadow-card: 0 1px 1px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.13);
   --shadow-lift: 0 8px 16px rgba(9, 30, 66, 0.25);
   --shadow-modal: 0 12px 40px rgba(9, 30, 66, 0.4);
@@ -49,6 +52,9 @@
     --prio-high: #f0a35e;
     --prio-medium: #85b3ff;
     --prio-low: #9aa7b5;
+    --wt-review: #f9a8d4;
+    --wt-coding: #5eead4;
+    --wt-admin: #fbbf24;
     --shadow-card: 0 1px 1px rgba(0, 0, 0, 0.5), 0 0 1px rgba(0, 0, 0, 0.4);
     --shadow-lift: 0 8px 16px rgba(0, 0, 0, 0.55);
     --shadow-modal: 0 12px 40px rgba(0, 0, 0, 0.6);
@@ -369,6 +375,42 @@ button {
 .priority-option:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
+}
+
+/* ---- Work type ---- */
+
+/* Cards are tinted by work-type ("postit" look) rather than carrying a badge.
+   The .worktype-* mapping to --po is kept so the picker in the modal renders
+   in the same hues via the shared .priority-option styles. */
+
+.worktype-review {
+  --po: var(--wt-review);
+}
+.worktype-coding {
+  --po: var(--wt-coding);
+}
+.worktype-admin {
+  --po: var(--wt-admin);
+}
+
+.card-worktype-review {
+  background-color: color-mix(in srgb, var(--wt-review) 22%, var(--surface));
+}
+.card-worktype-coding {
+  background-color: color-mix(in srgb, var(--wt-coding) 22%, var(--surface));
+}
+.card-worktype-admin {
+  background-color: color-mix(in srgb, var(--wt-admin) 22%, var(--surface));
+}
+
+.card-worktype-review:hover {
+  background-color: color-mix(in srgb, var(--wt-review) 30%, var(--surface-hover));
+}
+.card-worktype-coding:hover {
+  background-color: color-mix(in srgb, var(--wt-coding) 30%, var(--surface-hover));
+}
+.card-worktype-admin:hover {
+  background-color: color-mix(in srgb, var(--wt-admin) 30%, var(--surface-hover));
 }
 
 /* ---- Loading ---- */
