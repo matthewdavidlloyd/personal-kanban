@@ -17,6 +17,7 @@ interface BoardActions {
     columnId: string,
     title: string,
     description: string,
+    note: string,
     priority: Priority,
     workType: WorkType,
   ) => void;
@@ -24,6 +25,7 @@ interface BoardActions {
     cardId: string,
     title: string,
     description: string,
+    note: string,
     priority: Priority,
     workType: WorkType,
   ) => void;
@@ -72,21 +74,23 @@ export function BoardProvider({ children }: { children: ReactNode }) {
 
   const actions = useMemo<BoardActions>(
     () => ({
-      addCard: (columnId, title, description, priority, workType) =>
+      addCard: (columnId, title, description, note, priority, workType) =>
         dispatch({
           type: "addCard",
           columnId,
           title,
           description,
+          note,
           priority,
           workType,
         }),
-      updateCard: (cardId, title, description, priority, workType) =>
+      updateCard: (cardId, title, description, note, priority, workType) =>
         dispatch({
           type: "updateCard",
           cardId,
           title,
           description,
+          note,
           priority,
           workType,
         }),

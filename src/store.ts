@@ -14,6 +14,7 @@ function normalize(state: BoardState): BoardState {
         ...card,
         priority: card.priority ?? DEFAULT_PRIORITY,
         workType: card.workType ?? DEFAULT_WORK_TYPE,
+        note: card.note ?? "",
       },
     ]),
   );

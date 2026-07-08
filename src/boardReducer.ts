@@ -7,6 +7,7 @@ export type BoardAction =
       columnId: string;
       title: string;
       description: string;
+      note: string;
       priority: Priority;
       workType: WorkType;
     }
@@ -15,6 +16,7 @@ export type BoardAction =
       cardId: string;
       title: string;
       description: string;
+      note: string;
       priority: Priority;
       workType: WorkType;
     }
@@ -40,6 +42,7 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
         id,
         title: action.title,
         description: action.description,
+        note: action.note,
         priority: action.priority,
         workType: action.workType,
         createdAt: now,
@@ -65,6 +68,7 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
             ...existing,
             title: action.title,
             description: action.description,
+            note: action.note,
             priority: action.priority,
             workType: action.workType,
             updatedAt: nowIso(),

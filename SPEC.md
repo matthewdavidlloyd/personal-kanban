@@ -17,7 +17,7 @@ A single-user kanban board for macOS. Real desktop app (dock icon, `.app` bundle
 ### Board
 - One board, full-height swim lanes rendered left to right and centered. Lanes are flat and flush with thin dividers (a "whiteboard" look), each with a header row (name · count · `+`). Defaults: **Backlog**, **In Progress**, **Waiting**, **Done**.
 - Columns come from stored state; no column-management UI in v1 (edit the JSON if needed — see v1.1).
-- Cards show title and a **priority** badge; card background is tinted by **work type** (Review / Coding / Admin — "postit" colors), plus a small static marker if an agent has been dispatched (a breadcrumb, not a status). Click a card to open details.
+- Cards show title, an optional **note** (short freeform status line), and a **priority** badge; card background is tinted by **work type** (Review / Coding / Admin — "postit" colors), plus a small static marker if an agent has been dispatched (a breadcrumb, not a status). Click a card to open details.
 - No in-app title bar; the OS window title is `personal-kanban`. Settings live behind a floating gear (top-right) or `Cmd+,`.
 
 ### Drag and drop
@@ -27,11 +27,11 @@ A single-user kanban board for macOS. Real desktop app (dock icon, `.app` bundle
 
 ### Create issue
 - `+` button in each column header, plus keyboard shortcut `N` (creates in first column).
-- Opens a modal: **Title** (required), **Priority** (Urgent / High / Medium / Low, default Medium), **Type** (Review / Coding / Admin, default Coding), **Description** (optional, plain-text textarea).
+- Opens a modal: **Title** (required), **Note** (optional short status line), **Priority** (Urgent / High / Medium / Low, default Medium), **Type** (Review / Coding / Admin, default Coding), **Description** (optional, plain-text textarea).
 - `Cmd+Enter` submits, `Esc` cancels.
 
 ### Issue details
-- Clicking a card opens the same modal in edit mode: title, priority, type, description, **Delete**, and **Send to Claude Code**.
+- Clicking a card opens the same modal in edit mode: title, note, priority, type, description, **Delete**, and **Send to Claude Code**.
 - Edits save on submit; delete asks for confirmation.
 - Priority is a visual attribute only — the board stays manually ordered (see Drag and drop), never auto-sorted by priority.
 
@@ -84,6 +84,7 @@ interface Card {
   id: string;                   // crypto.randomUUID()
   title: string;
   description: string;
+  note: string;                 // short freeform status line shown on card face (default "")
   priority: Priority;           // Urgent / High / Medium / Low
   workType: WorkType;           // Review / Coding / Admin (default Coding)
   createdAt: string;            // ISO

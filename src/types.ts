@@ -9,6 +9,8 @@ export interface Card {
   id: string; // crypto.randomUUID()
   title: string;
   description: string;
+  /** Short freeform status line shown on the card face (e.g. "needs self-review"). */
+  note: string;
   priority: Priority;
   workType: WorkType;
   createdAt: string; // ISO
