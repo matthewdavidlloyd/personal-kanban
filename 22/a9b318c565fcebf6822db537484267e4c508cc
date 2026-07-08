@@ -1,0 +1,24 @@
+src/styles.css
+  s_05f6a9f0a45185::t_d69b116e5db52f 185-187
+  s_05f6a9f0a45185::t_9265d13f512f52 153-156
+  s_05f6a9f0a45185::t_a45815c277569a 151-152,157,159,167-170,173,175-177
+  s_05f6a9f0a45185::t_594e3a525945a3 233
+  s_05f6a9f0a45185::t_2c030f80bcaa68 36
+  s_05f6a9f0a45185::t_4b21b3075356b6 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "22a9b318c565fcebf6822db537484267e4c508cc",
+  "prompts": {},
+  "sessions": {
+    "s_05f6a9f0a45185": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "55f91957-cc29-4abf-844d-a43fbc3b5cfc",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Matt Lloyd <matt@wealthvector.com>"
+    }
+  }
+}
