@@ -1,0 +1,24 @@
+src-tauri/tauri.conf.json
+  s_05f6a9f0a45185::t_351f1e5a059577 15
+src/styles.css
+  s_05f6a9f0a45185::t_3eaf3ef16fa1a0 139,155-156,163-166
+  s_05f6a9f0a45185::t_045a2a3cbd9088 78-83,87-89,97
+src/App.tsx
+  s_05f6a9f0a45185::t_fb30eb255bdd4b 98,101-102,108
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "bb08f68b27a16f727a82aa53fd94acc47a2cd892",
+  "prompts": {},
+  "sessions": {
+    "s_05f6a9f0a45185": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "55f91957-cc29-4abf-844d-a43fbc3b5cfc",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Matt Lloyd <matt@wealthvector.com>"
+    }
+  }
+}
