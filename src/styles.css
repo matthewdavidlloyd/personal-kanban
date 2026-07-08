@@ -211,12 +211,31 @@ button {
   background-color: var(--surface);
   border-radius: 8px;
   box-shadow: var(--shadow-card);
-  cursor: pointer;
+  cursor: grab;
   user-select: none;
+  touch-action: none;
 }
 
 .card:hover {
   background-color: var(--surface-hover);
+}
+
+/* Source card while its overlay clone is being dragged. */
+.card-dragging {
+  opacity: 0.4;
+}
+
+/* Floating clone shown under the cursor during a drag. */
+.card-overlay {
+  cursor: grabbing;
+  box-shadow: var(--shadow-lift);
+  transform: rotate(2deg);
+}
+
+/* Column cards area highlights while a card hovers over it. */
+.column-cards-over {
+  background-color: var(--surface-hover);
+  border-radius: 8px;
 }
 
 .card:focus-visible {

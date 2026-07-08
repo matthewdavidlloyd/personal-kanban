@@ -57,7 +57,6 @@ function AppInner() {
 
       <main className="app-main">
         <Board
-          state={state}
           onAddCard={(columnId) => setModal({ type: "create", columnId })}
           onCardClick={(cardId) => setModal({ type: "edit", cardId })}
         />
