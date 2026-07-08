@@ -1,10 +1,13 @@
 // Data model — see SPEC.md §Data model. This is the single source of truth
 // for the shape persisted to store.json.
 
+export type Priority = "urgent" | "high" | "medium" | "low";
+
 export interface Card {
   id: string; // crypto.randomUUID()
   title: string;
   description: string;
+  priority: Priority;
   createdAt: string; // ISO
   updatedAt: string; // ISO
   /** Informational breadcrumb of the last dispatch — NOT a live status. */

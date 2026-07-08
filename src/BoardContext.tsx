@@ -10,11 +10,21 @@ import {
 } from "react";
 import { boardReducer } from "./boardReducer";
 import { loadBoardState, saveBoardState } from "./store";
-import type { BoardState, Card, Settings } from "./types";
+import type { BoardState, Card, Priority, Settings } from "./types";
 
 interface BoardActions {
-  addCard: (columnId: string, title: string, description: string) => void;
-  updateCard: (cardId: string, title: string, description: string) => void;
+  addCard: (
+    columnId: string,
+    title: string,
+    description: string,
+    priority: Priority,
+  ) => void;
+  updateCard: (
+    cardId: string,
+    title: string,
+    description: string,
+    priority: Priority,
+  ) => void;
   deleteCard: (cardId: string) => void;
   moveCard: (cardId: string, toColumnId: string, toIndex: number) => void;
   setCardAgent: (cardId: string, agent: NonNullable<Card["agent"]>) => void;
@@ -60,10 +70,10 @@ export function BoardProvider({ children }: { children: ReactNode }) {
 
   const actions = useMemo<BoardActions>(
     () => ({
-      addCard: (columnId, title, description) =>
-        dispatch({ type: "addCard", columnId, title, description }),
-      updateCard: (cardId, title, description) =>
-        dispatch({ type: "updateCard", cardId, title, description }),
+      addCard: (columnId, title, description, priority) =>
+        dispatch({ type: "addCard", columnId, title, description, priority }),
+      updateCard: (cardId, title, description, priority) =>
+        dispatch({ type: "updateCard", cardId, title, description, priority }),
       deleteCard: (cardId) => dispatch({ type: "deleteCard", cardId }),
       moveCard: (cardId, toColumnId, toIndex) =>
         dispatch({ type: "moveCard", cardId, toColumnId, toIndex }),

@@ -1,9 +1,21 @@
-import type { BoardState, Card, Settings } from "./types";
+import type { BoardState, Card, Priority, Settings } from "./types";
 
 export type BoardAction =
   | { type: "hydrate"; state: BoardState }
-  | { type: "addCard"; columnId: string; title: string; description: string }
-  | { type: "updateCard"; cardId: string; title: string; description: string }
+  | {
+      type: "addCard";
+      columnId: string;
+      title: string;
+      description: string;
+      priority: Priority;
+    }
+  | {
+      type: "updateCard";
+      cardId: string;
+      title: string;
+      description: string;
+      priority: Priority;
+    }
   | { type: "deleteCard"; cardId: string }
   | { type: "moveCard"; cardId: string; toColumnId: string; toIndex: number }
   | { type: "setCardAgent"; cardId: string; agent: NonNullable<Card["agent"]> }
@@ -26,6 +38,7 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
         id,
         title: action.title,
         description: action.description,
+        priority: action.priority,
         createdAt: now,
         updatedAt: now,
       };
@@ -49,6 +62,7 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
             ...existing,
             title: action.title,
             description: action.description,
+            priority: action.priority,
             updatedAt: nowIso(),
           },
         },

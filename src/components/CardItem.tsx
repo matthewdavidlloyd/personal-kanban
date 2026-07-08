@@ -1,5 +1,6 @@
 import { forwardRef } from "react";
 import type { Card } from "../types";
+import { PRIORITY_LABELS, DEFAULT_PRIORITY } from "../priority";
 
 interface CardItemProps extends React.HTMLAttributes<HTMLDivElement> {
   card: Card;
@@ -21,15 +22,25 @@ export const CardItem = forwardRef<HTMLDivElement, CardItemProps>(
     if (overlay) classes.push("card-overlay");
     if (className) classes.push(className);
 
+    const priority = card.priority ?? DEFAULT_PRIORITY;
+
     return (
       <div ref={ref} className={classes.join(" ")} {...rest}>
         <div className="card-title">{card.title}</div>
-        {card.agent && (
-          <div className="card-agent-marker" title={`agent ${card.agent.id}`}>
-            <span className="dot" aria-hidden="true" />
-            claude
-          </div>
-        )}
+        <div className="card-meta">
+          <span className={`priority-badge priority-${priority}`}>
+            {PRIORITY_LABELS[priority]}
+          </span>
+          {card.agent && (
+            <span
+              className="card-agent-marker"
+              title={`agent ${card.agent.id}`}
+            >
+              <span className="dot" aria-hidden="true" />
+              claude
+            </span>
+          )}
+        </div>
       </div>
     );
   },

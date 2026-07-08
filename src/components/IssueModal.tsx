@@ -1,19 +1,24 @@
 import { useState } from "react";
-import type { Card } from "../types";
+import type { Card, Priority } from "../types";
+import { PRIORITIES, PRIORITY_LABELS, DEFAULT_PRIORITY } from "../priority";
 import { timeAgo } from "../time";
 import { Modal } from "./Modal";
 
 interface IssueModalProps {
   /** Present in edit mode; absent in create mode. */
   card?: Card;
-  onSubmit: (title: string, description: string) => void;
+  onSubmit: (title: string, description: string, priority: Priority) => void;
   onDelete?: () => void;
   onClose: () => void;
   // Dispatch (edit mode only):
   agent?: Card["agent"];
   canSend?: boolean;
   sendHint?: string;
-  onSend?: (title: string, description: string) => Promise<void>;
+  onSend?: (
+    title: string,
+    description: string,
+    priority: Priority,
+  ) => Promise<void>;
   onDismissAgent?: () => void;
 }
 
@@ -31,6 +36,9 @@ export function IssueModal({
   const isEdit = card !== undefined;
   const [title, setTitle] = useState(card?.title ?? "");
   const [description, setDescription] = useState(card?.description ?? "");
+  const [priority, setPriority] = useState<Priority>(
+    card?.priority ?? DEFAULT_PRIORITY,
+  );
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [sending, setSending] = useState(false);
 
@@ -38,7 +46,7 @@ export function IssueModal({
 
   function save() {
     if (!canSave) return;
-    onSubmit(title.trim(), description);
+    onSubmit(title.trim(), description, priority);
     onClose();
   }
 
@@ -47,7 +55,7 @@ export function IssueModal({
     setSending(true);
     try {
       // Parent persists edits, dispatches, and records the agent (or toasts).
-      await onSend(title.trim(), description);
+      await onSend(title.trim(), description, priority);
     } finally {
       setSending(false);
     }
@@ -76,6 +84,26 @@ export function IssueModal({
             placeholder="What needs doing?"
           />
         </label>
+
+        <div className="field">
+          <span className="field-label">Priority</span>
+          <div className="priority-picker" role="radiogroup" aria-label="Priority">
+            {PRIORITIES.map((p) => (
+              <button
+                key={p}
+                type="button"
+                role="radio"
+                aria-checked={priority === p}
+                className={`priority-option priority-${p}${
+                  priority === p ? " is-selected" : ""
+                }`}
+                onClick={() => setPriority(p)}
+              >
+                {PRIORITY_LABELS[p]}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <label className="field">
           <span className="field-label">Description</span>

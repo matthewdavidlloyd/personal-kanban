@@ -5,6 +5,7 @@ import { SettingsModal } from "./components/SettingsModal";
 import { Toast } from "./components/Toast";
 import { BoardProvider, useBoard } from "./BoardContext";
 import { DispatchError, dispatchToClaude, projectDirExists } from "./claude";
+import type { Priority } from "./types";
 
 type ModalState =
   | { type: "create"; columnId: string }
@@ -72,8 +73,13 @@ function AppInner() {
     : "Set a project directory in Settings first";
 
   const handleSend = useCallback(
-    async (cardId: string, title: string, description: string) => {
-      actions.updateCard(cardId, title, description);
+    async (
+      cardId: string,
+      title: string,
+      description: string,
+      priority: Priority,
+    ) => {
+      actions.updateCard(cardId, title, description, priority);
       try {
         const { id } = await dispatchToClaude({
           title,
@@ -131,8 +137,8 @@ function AppInner() {
 
       {modal?.type === "create" && (
         <IssueModal
-          onSubmit={(title, description) =>
-            actions.addCard(modal.columnId, title, description)
+          onSubmit={(title, description, priority) =>
+            actions.addCard(modal.columnId, title, description, priority)
           }
           onClose={() => setModal(null)}
         />
@@ -141,16 +147,16 @@ function AppInner() {
       {modal?.type === "edit" && editingCard && (
         <IssueModal
           card={editingCard}
-          onSubmit={(title, description) =>
-            actions.updateCard(editingCard.id, title, description)
+          onSubmit={(title, description, priority) =>
+            actions.updateCard(editingCard.id, title, description, priority)
           }
           onDelete={() => actions.deleteCard(editingCard.id)}
           onClose={() => setModal(null)}
           agent={editingCard.agent}
           canSend={projectDirValid}
           sendHint={sendHint}
-          onSend={(title, description) =>
-            handleSend(editingCard.id, title, description)
+          onSend={(title, description, priority) =>
+            handleSend(editingCard.id, title, description, priority)
           }
           onDismissAgent={() => actions.clearCardAgent(editingCard.id)}
         />
