@@ -1,0 +1,19 @@
+src/components/Board.tsx
+  s_05f6a9f0a45185::t_dad38fd0da0fb4 1,6-9,12,51-53,61-67,73-109,112-113,120-126,134,150,166
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "fd4577a33cdec01a7dd6b10d0ba194bbb27a7c9e",
+  "prompts": {},
+  "sessions": {
+    "s_05f6a9f0a45185": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "55f91957-cc29-4abf-844d-a43fbc3b5cfc",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Matt Lloyd <matt@wealthvector.com>"
+    }
+  }
+}
