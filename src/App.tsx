@@ -95,18 +95,17 @@ function AppInner() {
 
   return (
     <div className="app">
-      <header className="app-bar">
-        <h1 className="app-title">Kanban</h1>
+      {projectDir.trim() && (
         <button
           type="button"
-          className="icon-button"
-          title="Settings"
+          className="settings-fab"
+          title="Settings (⌘,)"
           aria-label="Settings"
           onClick={() => setSettingsOpen(true)}
         >
           ⚙
         </button>
-      </header>
+      )}
 
       {!projectDir.trim() && (
         <div className="notice">
