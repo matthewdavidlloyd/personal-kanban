@@ -31,9 +31,16 @@ function AppInner() {
     };
   }, [projectDir]);
 
-  // `N` opens a new issue in the first column (ignored while typing / in a layer).
+  // Global shortcuts: Cmd+, opens Settings; `N` opens a new issue in the first
+  // column (both ignored while typing or when a layer is already open).
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === ",") {
+        if (modal || settingsOpen) return;
+        e.preventDefault();
+        setSettingsOpen(true);
+        return;
+      }
       if (modal || settingsOpen) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const target = e.target as HTMLElement | null;
@@ -100,6 +107,21 @@ function AppInner() {
           ⚙
         </button>
       </header>
+
+      {!projectDir.trim() && (
+        <div className="notice">
+          <span>
+            No project directory set — “Send to Claude Code” is disabled.
+          </span>
+          <button
+            type="button"
+            className="notice-action"
+            onClick={() => setSettingsOpen(true)}
+          >
+            Open Settings
+          </button>
+        </div>
+      )}
 
       <main className="app-main">
         <Board
