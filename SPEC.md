@@ -15,9 +15,10 @@ A single-user kanban board for macOS. Real desktop app (dock icon, `.app` bundle
 ## Features (v1)
 
 ### Board
-- One board, columns rendered left to right. Defaults: **Backlog**, **In Progress**, **Done**.
+- One board, full-height swim lanes rendered left to right and centered. Lanes are flat and flush with thin dividers (a "whiteboard" look), each with a header row (name · count · `+`). Defaults: **Backlog**, **In Progress**, **Done**.
 - Columns come from stored state; no column-management UI in v1 (edit the JSON if needed — see v1.1).
-- Cards show title, plus a small static marker if an agent has been dispatched (a breadcrumb, not a status). Click a card to open details.
+- Cards show title and a **priority** badge, plus a small static marker if an agent has been dispatched (a breadcrumb, not a status). Click a card to open details.
+- No in-app title bar; the OS window title is `personal-kanban`. Settings live behind a floating gear (top-right) or `Cmd+,`.
 
 ### Drag and drop
 - Drag cards between columns and reorder within a column.
@@ -26,12 +27,13 @@ A single-user kanban board for macOS. Real desktop app (dock icon, `.app` bundle
 
 ### Create issue
 - `+` button in each column header, plus keyboard shortcut `N` (creates in first column).
-- Opens a modal: **Title** (required), **Description** (optional, plain-text textarea).
+- Opens a modal: **Title** (required), **Priority** (Urgent / High / Medium / Low, default Medium), **Description** (optional, plain-text textarea).
 - `Cmd+Enter` submits, `Esc` cancels.
 
 ### Issue details
-- Clicking a card opens the same modal in edit mode: title, description, **Delete**, and **Send to Claude Code**.
+- Clicking a card opens the same modal in edit mode: title, priority, description, **Delete**, and **Send to Claude Code**.
 - Edits save on submit; delete asks for confirmation.
+- Priority is a visual attribute only — the board stays manually ordered (see Drag and drop), never auto-sorted by priority.
 
 ### Send to Claude Code (background dispatch)
 - Runs, in the configured project directory (shell plugin `cwd` option), returning immediately:
@@ -53,16 +55,18 @@ A single-user kanban board for macOS. Real desktop app (dock icon, `.app` bundle
 - All `claude` invocations go through `/bin/zsh -lc` (login shell) because a GUI-launched process doesn't inherit shell PATH. Title and prompt are passed as individual argv elements (`zsh -lc 'exec claude --bg --name "$1" "$2"' _ <title> <prompt>`) — never interpolated into a shell string, so quoting/injection is a non-issue.
 
 ### Settings
-- Gear icon → modal with one field: **Project directory** — working dir for all dispatches. Default `~`. Validated to exist on save (fs plugin `exists`).
+- Floating gear (top-right) or `Cmd+,` → modal with one field: **Project directory** — working dir for all dispatches. Prefilled with the home directory when unset. Validated to exist on save (fs plugin `exists`, scoped to the home tree — directories outside `$HOME` can't be validated, so Send stays disabled for them in v1).
 
 ### Persistence
 - `tauri-plugin-store`, single file `store.json` in the app data dir (`~/Library/Application Support/<bundle-id>/`).
 - Auto-save with default debounce (100ms); every mutation writes through.
-- No migrations needed for v1; the store is small enough to hand-edit if the schema changes.
+- No formal migrations for v1: fields added after a `store.json` was first written (e.g. `priority`) are backfilled with a default when the board is loaded; the store is small enough to hand-edit too.
 
 ## Data model
 
 ```ts
+type Priority = "urgent" | "high" | "medium" | "low";
+
 interface BoardState {
   columns: Column[];            // ordered
   cards: Record<string, Card>;
@@ -79,6 +83,7 @@ interface Card {
   id: string;                   // crypto.randomUUID()
   title: string;
   description: string;
+  priority: Priority;           // Urgent / High / Medium / Low
   createdAt: string;            // ISO
   updatedAt: string;
   agent?: {
@@ -108,8 +113,9 @@ interface Settings {
 
 - **State:** single `useReducer` in a `useBoard` hook, provided via context. No state library.
 - **Styling:** one plain CSS file. Dark mode via `prefers-color-scheme`.
-- **Dependencies (frontend):** `react`, `react-dom`, `@dnd-kit/core`, `@dnd-kit/sortable`, `@tauri-apps/api`, `@tauri-apps/plugin-store`, `@tauri-apps/plugin-shell`, `@tauri-apps/plugin-fs`.
-- **Rust:** whatever `create-tauri-app` generates plus the three plugins registered. Zero custom Rust expected.
+- **Dependencies (frontend):** `react`, `react-dom`, `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`, `@tauri-apps/api`, `@tauri-apps/plugin-store`, `@tauri-apps/plugin-shell`, `@tauri-apps/plugin-fs`.
+- **Rust:** stock Tauri v2 with the three plugins registered (`store`, `shell`, `fs`) and no custom commands. The scaffold's `opener` plugin and sample `greet` command were removed.
+- **Supply chain:** `.npmrc` sets `min-release-age=7`, so npm only installs dependency versions published more than 7 days ago (a rolling window). Semver ranges can't express version age, so the policy lives in `.npmrc`; it's committed so it applies to everyone building the repo.
 
 ### Shell permission scoping
 
@@ -126,15 +132,15 @@ The shell plugin denies everything by default. The capability grants exactly one
         "-lc",
         "exec claude --bg --name \"$1\" \"$2\"",
         "_",
-        { "validator": "(?s).*" },
-        { "validator": "(?s).*" }
+        { "validator": "[\\s\\S]*" },
+        { "validator": "[\\s\\S]*" }
       ]
     }
   ]
 }
 ```
 
-(Exact validator syntax to be confirmed against the generated schema during implementation — intent: fixed script literal, free text only in the trailing title/prompt arguments.)
+Confirmed against the generated schema: the fixed args (`-lc`, the script literal, `_`) must match exactly, and each `validator` regex is auto-wrapped in `^…$` (full-string match) unless `raw: true`. `[\s\S]*` matches any input including newlines without depending on inline-flag placement — the equivalent, more robust form of the original `(?s).*` intent (free text only in the trailing title/prompt arguments). This lives in its own capability file (`src-tauri/capabilities/claude-dispatch.json`); the default capability grants `core`/`store`/`fs` only (no `shell:default`).
 
 ## Non-goals (v1)
 

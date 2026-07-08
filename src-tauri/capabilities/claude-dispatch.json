@@ -1,0 +1,25 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "claude-dispatch",
+  "description": "Dispatch a background Claude Code agent through a single fixed zsh command shape. The script string is pinned to a literal; only the trailing session title and prompt vary (validated as free text). This is the only shell command the app can execute.",
+  "windows": ["main"],
+  "permissions": [
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "claude-dispatch",
+          "cmd": "/bin/zsh",
+          "args": [
+            "-lc",
+            "exec claude --bg --name \"$1\" \"$2\"",
+            "_",
+            { "validator": "[\\s\\S]*" },
+            { "validator": "[\\s\\S]*" }
+          ],
+          "sidecar": false
+        }
+      ]
+    }
+  ]
+}

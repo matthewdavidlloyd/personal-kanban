@@ -1,0 +1,672 @@
+/* Personal Kanban — single stylesheet. Light/dark via prefers-color-scheme. */
+
+:root {
+  --bg: #f4f5f7;
+  --surface: #ffffff;
+  --surface-2: #ebecf0;
+  --surface-header: #e3e5ea;
+  --surface-hover: #f0f1f4;
+  --text: #172b4d;
+  --text-muted: #5e6c84;
+  --border: #dfe1e6;
+  --accent: #0c66e4;
+  --accent-contrast: #ffffff;
+  --danger: #ca3521;
+  --prio-urgent: #c9372c;
+  --prio-high: #b45309;
+  --prio-medium: #0c66e4;
+  --prio-low: #5e6c84;
+  --shadow-card: 0 1px 1px rgba(9, 30, 66, 0.25), 0 0 1px rgba(9, 30, 66, 0.13);
+  --shadow-lift: 0 8px 16px rgba(9, 30, 66, 0.25);
+  --shadow-modal: 0 12px 40px rgba(9, 30, 66, 0.4);
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text);
+  background-color: var(--bg);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1d2125;
+    --surface: #22272b;
+    --surface-2: #282e33;
+    --surface-header: #2e353c;
+    --surface-hover: #2c333a;
+    --text: #c7d1db;
+    --text-muted: #8c9bab;
+    --border: #38414a;
+    --accent: #579dff;
+    --accent-contrast: #1d2125;
+    --danger: #f87168;
+    --prio-urgent: #ff8078;
+    --prio-high: #f0a35e;
+    --prio-medium: #85b3ff;
+    --prio-low: #9aa7b5;
+    --shadow-card: 0 1px 1px rgba(0, 0, 0, 0.5), 0 0 1px rgba(0, 0, 0, 0.4);
+    --shadow-lift: 0 8px 16px rgba(0, 0, 0, 0.55);
+    --shadow-modal: 0 12px 40px rgba(0, 0, 0, 0.6);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  overflow: hidden;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ---- App shell ---- */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Floating settings button (top-right corner; Cmd+, also opens settings). */
+.settings-fab {
+  position: fixed;
+  top: 8px;
+  right: 12px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+}
+
+.settings-fab:hover {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+.notice {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--text);
+  background-color: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.notice-action {
+  margin-left: auto;
+  padding: 4px 10px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+}
+
+.notice-action:hover {
+  background-color: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.app-main {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---- Board ---- */
+
+.board {
+  display: flex;
+  gap: 0;
+  align-items: stretch;
+  /* Center the lanes when they fit; `safe` falls back to start (no clipping)
+     when the board overflows and needs to scroll. Plain `center` is the
+     fallback for engines without the `safe` keyword. */
+  justify-content: center;
+  justify-content: safe center;
+  height: 100%;
+  padding: 24px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* ---- Column ---- */
+
+.column {
+  /* Flat, flush, full-height lanes on a shared surface (whiteboard feel):
+     no per-lane border or rounding — lanes are separated by thin dividers. */
+  flex: 1 0 300px;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--surface-2);
+}
+
+.column + .column {
+  border-left: 1px solid var(--border);
+}
+
+.column-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 14px;
+  background-color: var(--surface-header);
+  border-bottom: 1px solid var(--border);
+}
+
+.column-name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text);
+}
+
+.column-count {
+  min-width: 20px;
+  padding: 1px 7px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-muted);
+  background-color: var(--bg);
+  border-radius: 10px;
+}
+
+.column-add {
+  margin-left: auto;
+  width: 26px;
+  height: 26px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+}
+
+.column-add:hover {
+  background-color: var(--surface-hover);
+  color: var(--text);
+}
+
+.column-cards {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 10px 12px;
+  overflow-y: auto;
+}
+
+.column-empty {
+  margin: 4px 4px;
+  padding: 12px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--text-muted);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+
+/* ---- Card ---- */
+
+.card {
+  padding: 10px 12px;
+  color: var(--text);
+  background-color: var(--surface);
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.card:hover {
+  background-color: var(--surface-hover);
+}
+
+/* Source card while its overlay clone is being dragged. */
+.card-dragging {
+  opacity: 0.4;
+}
+
+/* Floating clone shown under the cursor during a drag. */
+.card-overlay {
+  cursor: grabbing;
+  box-shadow: var(--shadow-lift);
+  transform: rotate(2deg);
+}
+
+/* Column cards area highlights while a card hovers over it. */
+.column-cards-over {
+  background-color: var(--surface-hover);
+  border-radius: 8px;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.card-title {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 9px;
+}
+
+.card-agent-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.card-agent-marker .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--accent);
+}
+
+/* ---- Priority ---- */
+
+.priority-urgent {
+  --po: var(--prio-urgent);
+}
+.priority-high {
+  --po: var(--prio-high);
+}
+.priority-medium {
+  --po: var(--prio-medium);
+}
+.priority-low {
+  --po: var(--prio-low);
+}
+
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--po);
+  background-color: color-mix(in srgb, var(--po) 16%, transparent);
+  border-radius: 999px;
+}
+
+.priority-picker {
+  display: flex;
+  gap: 6px;
+}
+
+.priority-option {
+  flex: 1 1 0;
+  padding: 7px 6px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.priority-option:hover {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--po) 55%, var(--border));
+}
+
+.priority-option.is-selected {
+  color: var(--po);
+  border-color: var(--po);
+  background-color: color-mix(in srgb, var(--po) 15%, transparent);
+}
+
+.priority-option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* ---- Loading ---- */
+
+.app-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-muted);
+}
+
+/* ---- Modal ---- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10vh 16px 16px;
+  background-color: rgba(9, 30, 66, 0.54);
+}
+
+.modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-modal);
+}
+
+.modal:focus {
+  outline: none;
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+}
+
+.modal-heading {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.field-input,
+.field-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  font: inherit;
+  color: var(--text);
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  resize: vertical;
+}
+
+.field-input:focus,
+.field-textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.field-textarea {
+  min-height: 96px;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-actions-spacer {
+  flex: 1 1 auto;
+}
+
+.confirm-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.confirm-delete-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.btn {
+  padding: 7px 14px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text);
+  background-color: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.btn:hover {
+  background-color: var(--surface-hover);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  color: var(--accent-contrast);
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+  background-color: var(--accent);
+}
+
+.btn-danger {
+  color: #fff;
+  background-color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-danger:hover {
+  filter: brightness(1.08);
+  background-color: var(--danger);
+}
+
+.btn-danger-text {
+  color: var(--danger);
+  background: transparent;
+  border-color: transparent;
+}
+
+.btn-danger-text:hover {
+  background-color: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+.modal-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.field-help {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.field-error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+/* ---- Dispatch (Send to Claude Code) ---- */
+
+.dispatch {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.agent-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.agent-breadcrumb .dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--accent);
+}
+
+.agent-text {
+  flex: 1 1 auto;
+}
+
+.agent-text code {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.agent-dismiss {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+}
+
+.agent-dismiss:hover {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+.btn-send {
+  align-self: flex-start;
+  color: var(--accent-contrast);
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn-send:hover:not(:disabled) {
+  filter: brightness(1.08);
+  background-color: var(--accent);
+}
+
+.send-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ---- Toast ---- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: min(680px, calc(100vw - 32px));
+  padding: 12px 12px 12px 14px;
+  color: #fff;
+  background-color: #3d1512;
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  box-shadow: var(--shadow-modal);
+}
+
+.toast-message {
+  flex: 1 1 auto;
+  margin: 0;
+  max-height: 40vh;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.toast-close {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+  line-height: 1;
+  color: #fff;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+}
+
+.toast-close:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
