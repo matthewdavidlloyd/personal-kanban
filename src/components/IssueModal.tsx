@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Card } from "../types";
+import { timeAgo } from "../time";
 import { Modal } from "./Modal";
 
 interface IssueModalProps {
@@ -8,6 +9,12 @@ interface IssueModalProps {
   onSubmit: (title: string, description: string) => void;
   onDelete?: () => void;
   onClose: () => void;
+  // Dispatch (edit mode only):
+  agent?: Card["agent"];
+  canSend?: boolean;
+  sendHint?: string;
+  onSend?: (title: string, description: string) => Promise<void>;
+  onDismissAgent?: () => void;
 }
 
 export function IssueModal({
@@ -15,11 +22,17 @@ export function IssueModal({
   onSubmit,
   onDelete,
   onClose,
+  agent,
+  canSend = false,
+  sendHint,
+  onSend,
+  onDismissAgent,
 }: IssueModalProps) {
   const isEdit = card !== undefined;
   const [title, setTitle] = useState(card?.title ?? "");
   const [description, setDescription] = useState(card?.description ?? "");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const canSave = title.trim().length > 0;
 
@@ -27,6 +40,17 @@ export function IssueModal({
     if (!canSave) return;
     onSubmit(title.trim(), description);
     onClose();
+  }
+
+  async function send() {
+    if (!onSend || !canSave || !canSend || sending) return;
+    setSending(true);
+    try {
+      // Parent persists edits, dispatches, and records the agent (or toasts).
+      await onSend(title.trim(), description);
+    } finally {
+      setSending(false);
+    }
   }
 
   function onKeyDown(e: React.KeyboardEvent) {
@@ -63,6 +87,45 @@ export function IssueModal({
             placeholder="Details (optional)"
           />
         </label>
+
+        {isEdit && (
+          <div className="dispatch">
+            {agent && (
+              <div className="agent-breadcrumb">
+                <span className="dot" aria-hidden="true" />
+                <span className="agent-text">
+                  agent <code>{agent.id}</code> · sent{" "}
+                  {timeAgo(agent.dispatchedAt)}
+                </span>
+                <button
+                  type="button"
+                  className="agent-dismiss"
+                  title="Clear agent breadcrumb"
+                  aria-label="Clear agent breadcrumb"
+                  onClick={onDismissAgent}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <button
+              type="button"
+              className="btn btn-send"
+              onClick={send}
+              disabled={!canSend || !canSave || sending}
+              title={!canSend ? sendHint : undefined}
+            >
+              {sending
+                ? "Sending…"
+                : agent
+                  ? "Re-send to Claude Code"
+                  : "Send to Claude Code"}
+            </button>
+            {!canSend && sendHint && (
+              <span className="send-hint">{sendHint}</span>
+            )}
+          </div>
+        )}
 
         <div className="modal-actions">
           {isEdit &&

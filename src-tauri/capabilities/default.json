@@ -9,7 +9,13 @@
     "core:default",
     "opener:default",
     "store:default",
-    "shell:default",
-    "fs:default"
+    "fs:default",
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [
+        { "path": "$HOME" },
+        { "path": "$HOME/**" }
+      ]
+    }
   ]
 }

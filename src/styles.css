@@ -434,3 +434,133 @@ button {
   font-size: 12px;
   color: var(--text-muted);
 }
+
+.field-help {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.field-error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+/* ---- Dispatch (Send to Claude Code) ---- */
+
+.dispatch {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.agent-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.agent-breadcrumb .dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--accent);
+}
+
+.agent-text {
+  flex: 1 1 auto;
+}
+
+.agent-text code {
+  font-size: 12px;
+  color: var(--text);
+}
+
+.agent-dismiss {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+}
+
+.agent-dismiss:hover {
+  background-color: var(--surface-2);
+  color: var(--text);
+}
+
+.btn-send {
+  align-self: flex-start;
+  color: var(--accent-contrast);
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn-send:hover:not(:disabled) {
+  filter: brightness(1.08);
+  background-color: var(--accent);
+}
+
+.send-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ---- Toast ---- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  z-index: 200;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  max-width: min(680px, calc(100vw - 32px));
+  padding: 12px 12px 12px 14px;
+  color: #fff;
+  background-color: #3d1512;
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  box-shadow: var(--shadow-modal);
+}
+
+.toast-message {
+  flex: 1 1 auto;
+  margin: 0;
+  max-height: 40vh;
+  overflow: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.toast-close {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+  line-height: 1;
+  color: #fff;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+}
+
+.toast-close:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}

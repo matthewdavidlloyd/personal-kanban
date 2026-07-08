@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Board } from "./components/Board";
 import { IssueModal } from "./components/IssueModal";
+import { SettingsModal } from "./components/SettingsModal";
+import { Toast } from "./components/Toast";
 import { BoardProvider, useBoard } from "./BoardContext";
+import { DispatchError, dispatchToClaude, projectDirExists } from "./claude";
 
 type ModalState =
   | { type: "create"; columnId: string }
@@ -11,11 +14,27 @@ type ModalState =
 function AppInner() {
   const { state, actions } = useBoard();
   const [modal, setModal] = useState<ModalState>(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const [projectDirValid, setProjectDirValid] = useState(false);
 
-  // `N` opens a new issue in the first column (ignored while typing / in a modal).
+  const projectDir = state.settings.projectDir;
+
+  // Track project-directory validity so Send can be gated on it.
+  useEffect(() => {
+    let cancelled = false;
+    projectDirExists(projectDir).then((ok) => {
+      if (!cancelled) setProjectDirValid(ok);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [projectDir]);
+
+  // `N` opens a new issue in the first column (ignored while typing / in a layer).
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (modal) return;
+      if (modal || settingsOpen) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const target = e.target as HTMLElement | null;
       if (
@@ -36,10 +55,36 @@ function AppInner() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [modal, state.columns]);
+  }, [modal, settingsOpen, state.columns]);
 
   const editingCard =
     modal?.type === "edit" ? state.cards[modal.cardId] : undefined;
+
+  const sendHint = projectDir.trim()
+    ? "Project directory not found — check Settings"
+    : "Set a project directory in Settings first";
+
+  const handleSend = useCallback(
+    async (cardId: string, title: string, description: string) => {
+      actions.updateCard(cardId, title, description);
+      try {
+        const { id } = await dispatchToClaude({
+          title,
+          description,
+          projectDir,
+        });
+        actions.setCardAgent(cardId, {
+          id,
+          dispatchedAt: new Date().toISOString(),
+        });
+      } catch (e) {
+        const message =
+          e instanceof DispatchError ? e.message : `Dispatch failed: ${String(e)}`;
+        setToast(message);
+      }
+    },
+    [actions, projectDir],
+  );
 
   return (
     <div className="app">
@@ -50,6 +95,7 @@ function AppInner() {
           className="icon-button"
           title="Settings"
           aria-label="Settings"
+          onClick={() => setSettingsOpen(true)}
         >
           ⚙
         </button>
@@ -79,8 +125,25 @@ function AppInner() {
           }
           onDelete={() => actions.deleteCard(editingCard.id)}
           onClose={() => setModal(null)}
+          agent={editingCard.agent}
+          canSend={projectDirValid}
+          sendHint={sendHint}
+          onSend={(title, description) =>
+            handleSend(editingCard.id, title, description)
+          }
+          onDismissAgent={() => actions.clearCardAgent(editingCard.id)}
         />
       )}
+
+      {settingsOpen && (
+        <SettingsModal
+          projectDir={projectDir}
+          onSave={(dir) => actions.updateSettings({ projectDir: dir })}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
+
+      {toast && <Toast message={toast} onDismiss={() => setToast(null)} />}
     </div>
   );
 }
