@@ -1,0 +1,37 @@
+src/dnd.ts
+  s_05f6a9f0a45185::t_1ef4440ae81d9d 1-69
+src/components/CardItem.tsx
+  s_05f6a9f0a45185::t_c99408e1e895e8 1,4,6-9,12-38
+src/components/SortableCard.tsx
+  s_05f6a9f0a45185::t_9c28174c30d4c6 1-37
+package.json
+  s_05f6a9f0a45185::t_8425fe4840270b 13-15
+src/components/Column.tsx
+  s_05f6a9f0a45185::t_3b8c7e708813fe 1-4,7-9,11-12,15-26,30-31,35-36,42-59
+src/components/Board.tsx
+  s_05f6a9f0a45185::t_dc7e7eb7b22b52 67-69,79-82,87
+  s_05f6a9f0a45185::t_c68ab14b6f80a2 1-12,14,22,27-31,34-35,38-66,70-78,83-86,88-103,105-135
+  s_05f6a9f0a45185::t_dd1e39acac37cc 15-20,24-26
+  s_05f6a9f0a45185::t_d5367925f5d6ab 23
+src/styles.css
+  s_05f6a9f0a45185::t_a8bbaa21fac82c 214,216,223-239
+  s_05f6a9f0a45185::t_0352cb8a8155dd 240
+package-lock.json
+  s_05f6a9f0a45185::t_c8d4df67f6e4f7 11-13,313-365,2074-2079
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "75eb2ec7557d252af927e2465dae402fa93838ea",
+  "prompts": {},
+  "sessions": {
+    "s_05f6a9f0a45185": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "55f91957-cc29-4abf-844d-a43fbc3b5cfc",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Matt Lloyd <matt@wealthvector.com>"
+    }
+  }
+}
