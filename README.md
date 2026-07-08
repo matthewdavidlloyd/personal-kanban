@@ -5,8 +5,7 @@ data, one board. Every card has a **Send to Claude Code** button that dispatches
 a background Claude Code agent named after the card title, so it's trivially
 findable in `claude agents` (which is where all agent management lives).
 
-See [`SPEC.md`](./SPEC.md) for the design and [`PLAN.md`](./PLAN.md) for the
-build plan.
+See [`SPEC.md`](./SPEC.md) for the design.
 
 ## Stack
 
