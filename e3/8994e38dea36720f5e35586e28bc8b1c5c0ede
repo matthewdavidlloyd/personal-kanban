@@ -1,0 +1,76 @@
+src-tauri/capabilities/default.json
+  s_05f6a9f0a45185::t_2bceb04a32e93e 5-7,10-13,15
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-4,8-9,14
+src-tauri/src/lib.rs
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-9,13-17
+  s_05f6a9f0a45185::t_2bceb04a32e93e 10-12
+src-tauri/tauri.conf.json
+  s_05f6a9f0a45185::t_619c99f666c881 15-19
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-14,20-37
+src/App.tsx
+  s_05f6a9f0a45185::t_2a22391c3df5a0 1-2,5-6,9-19
+  s_05f6a9f0a45185::t_0af07ea00d262a 3-4,7-8,20-23
+src/vite-env.d.ts
+  s_05f6a9f0a45185::t_0af07ea00d262a 1
+src-tauri/Cargo.toml
+  s_05f6a9f0a45185::t_2bceb04a32e93e 25-27
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-24,28
+src-tauri/.gitignore
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-7
+src/main.tsx
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-3,5-10
+  s_05f6a9f0a45185::t_9bba339494a7ed 4
+package.json
+  s_05f6a9f0a45185::t_2bceb04a32e93e 14-19,22,27
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-13,20-21,23-26,28-29
+.vscode/extensions.json
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-3
+index.html
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-14
+tsconfig.json
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-25
+src-tauri/build.rs
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-3
+src/types.ts
+  s_05f6a9f0a45185::t_bff5738e22c298 1-31
+public/vite.svg
+  s_05f6a9f0a45185::t_0af07ea00d262a 1
+vite.config.ts
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-32
+src/seed.ts
+  s_05f6a9f0a45185::t_c0da504a90a1ee 1-55
+src/components/Column.tsx
+  s_05f6a9f0a45185::t_14546725d7155d 1-45
+src/styles.css
+  s_05f6a9f0a45185::t_629a9eaff0b342 1-247
+src/components/CardItem.tsx
+  s_05f6a9f0a45185::t_d714a42c1c6629 1-31
+public/tauri.svg
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-6
+src-tauri/src/main.rs
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-6
+tsconfig.node.json
+  s_05f6a9f0a45185::t_0af07ea00d262a 1-10
+src/components/Board.tsx
+  s_05f6a9f0a45185::t_ca67dd826a72e4 1-24
+package-lock.json
+  s_05f6a9f0a45185::t_1feaa080b85e5e 1-2146
+src-tauri/Cargo.lock
+  s_05f6a9f0a45185::t_97116ccfae3e17 1-5091
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e38994e38dea36720f5e35586e28bc8b1c5c0ede",
+  "prompts": {},
+  "sessions": {
+    "s_05f6a9f0a45185": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "55f91957-cc29-4abf-844d-a43fbc3b5cfc",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Matt Lloyd <matt@wealthvector.com>"
+    }
+  }
+}
