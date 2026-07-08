@@ -89,7 +89,10 @@ export function Board({ onAddCard, onCardClick }: BoardProps) {
           const inner = closestCenter({
             ...args,
             droppableContainers: args.droppableContainers.filter(
-              (c) => c.id !== overId && cardIds.includes(String(c.id)),
+              (c) =>
+                c.id !== overId &&
+                String(c.id) !== activeId &&
+                cardIds.includes(String(c.id)),
             ),
           });
           overId = getFirstCollision(inner, "id") ?? overId;

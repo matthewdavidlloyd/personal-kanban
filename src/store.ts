@@ -12,7 +12,14 @@ function normalize(state: BoardState): BoardState {
       { ...card, priority: card.priority ?? DEFAULT_PRIORITY },
     ]),
   );
-  return { ...state, cards };
+  // Guard against columns saved without a cardIds array (would crash drag/move).
+  const columns = state.columns.map((c) => ({
+    ...c,
+    cardIds: Array.isArray(c.cardIds) ? c.cardIds : [],
+  }));
+  // A store missing settings.projectDir would make projectDir.trim() throw.
+  const settings = { ...state.settings, projectDir: state.settings.projectDir ?? "" };
+  return { ...state, cards, columns, settings };
 }
 
 // Single JSON file in the app data dir (~/Library/Application Support/<id>/).
