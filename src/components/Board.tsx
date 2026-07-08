@@ -1,11 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   DndContext,
   DragOverlay,
   PointerSensor,
-  closestCorners,
+  closestCenter,
+  getFirstCollision,
+  pointerWithin,
+  rectIntersection,
   useSensor,
   useSensors,
+  type CollisionDetection,
   type DragEndEvent,
   type DragOverEvent,
   type DragStartEvent,
@@ -44,6 +48,9 @@ export function Board({ onAddCard, onCardClick }: BoardProps) {
   itemsRef.current = items;
   // A drag just ended; swallow the trailing click so it doesn't open the modal.
   const suppressClick = useRef(false);
+  // Collision-detection helpers for the multi-container strategy below.
+  const lastOverId = useRef<string | null>(null);
+  const recentlyMovedToNewContainer = useRef(false);
 
   // Keep the local mirror in sync with the board whenever we're not dragging
   // (covers create/edit/delete and post-drop resync).
@@ -51,22 +58,72 @@ export function Board({ onAddCard, onCardClick }: BoardProps) {
     if (activeId === null) setItems(deriveItems(state));
   }, [state, activeId]);
 
+  // Reset the "just crossed containers" latch once the preview settles.
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      recentlyMovedToNewContainer.current = false;
+    });
+  }, [items]);
+
   const sensors = useSensors(
     // ~5px activation distance so a click doesn't start a drag.
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
 
+  // Pointer-first collision detection. Corner/center distance alone is
+  // unreliable on a board: a dense source column next to the target keeps
+  // "winning", so moves into an adjacent column silently fail. Instead resolve
+  // to the droppable the pointer is actually inside, then retarget to the
+  // nearest card within a hovered column so the drop index stays stable.
+  const collisionDetection: CollisionDetection = useCallback((args) => {
+    const pointerCollisions = pointerWithin(args);
+    const collisions =
+      pointerCollisions.length > 0 ? pointerCollisions : rectIntersection(args);
+    let overId = getFirstCollision(collisions, "id");
+
+    if (overId != null) {
+      const columns = itemsRef.current;
+      if (String(overId) in columns) {
+        const cardIds = columns[String(overId)];
+        if (cardIds.length > 0) {
+          const inner = closestCenter({
+            ...args,
+            droppableContainers: args.droppableContainers.filter(
+              (c) => c.id !== overId && cardIds.includes(String(c.id)),
+            ),
+          });
+          overId = getFirstCollision(inner, "id") ?? overId;
+        }
+      }
+      lastOverId.current = String(overId);
+      return [{ id: overId }];
+    }
+
+    // Nothing under the pointer (e.g. just emptied a column) — hold the last
+    // target to avoid flicker.
+    if (recentlyMovedToNewContainer.current) {
+      lastOverId.current = activeId;
+    }
+    return lastOverId.current ? [{ id: lastOverId.current }] : [];
+  }, [activeId]);
+
   function handleDragStart(event: DragStartEvent) {
     suppressClick.current = false;
+    lastOverId.current = null;
+    recentlyMovedToNewContainer.current = false;
     setActiveId(String(event.active.id));
   }
 
   function handleDragOver(event: DragOverEvent) {
     const { active, over } = event;
     if (!over) return;
-    setItems((prev) =>
-      moveBetweenColumns(prev, String(active.id), String(over.id)),
-    );
+    const current = itemsRef.current;
+    const next = moveBetweenColumns(current, String(active.id), String(over.id));
+    if (next !== current) {
+      recentlyMovedToNewContainer.current = true;
+      itemsRef.current = next;
+      setItems(next);
+    }
   }
 
   function handleDragEnd(event: DragEndEvent) {
@@ -74,6 +131,7 @@ export function Board({ onAddCard, onCardClick }: BoardProps) {
     const id = String(active.id);
     setActiveId(null);
     suppressClick.current = true;
+    lastOverId.current = null;
     if (!over) return; // dropped outside — sync effect reverts the preview
 
     const next = reorderWithinColumn(itemsRef.current, id, String(over.id));
@@ -89,6 +147,7 @@ export function Board({ onAddCard, onCardClick }: BoardProps) {
 
   function handleDragCancel() {
     setActiveId(null); // sync effect reverts the preview
+    lastOverId.current = null;
   }
 
   function handleCardClick(cardId: string) {
@@ -104,7 +163,7 @@ export function Board({ onAddCard, onCardClick }: BoardProps) {
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
