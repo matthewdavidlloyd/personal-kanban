@@ -1,0 +1,60 @@
+src/boardReducer.ts
+  s_ff7da9dea3431e::t_d7d7179ae02ce7 69
+  s_ff7da9dea3431e::t_84ef577a1455d5 1,11,19
+  s_ff7da9dea3431e::t_6c14ce668d04c8 44
+SPEC.md
+  s_ff7da9dea3431e::t_234a55c64b5997 34
+  s_ff7da9dea3431e::t_8b7c0e8b8d000d 20
+  s_ff7da9dea3431e::t_03dc3b40ee0ab0 69,88
+  s_ff7da9dea3431e::t_8c8df6cca64363 18
+  s_ff7da9dea3431e::t_f93da2acd49186 30
+src/styles.css
+  s_ff7da9dea3431e::t_da8058b9e128a9 380-381,385-395,414-415
+  s_ff7da9dea3431e::t_2bb45b65fa9147 382-384,396-413
+  s_ff7da9dea3431e::t_13e8696f556495 55-57
+  s_ff7da9dea3431e::t_0105fe79db3826 19-21
+src/workType.ts
+  s_ff7da9dea3431e::t_aebd6848e689b9 1-11
+src/components/IssueModal.tsx
+  s_ff7da9dea3431e::t_ee6a67300cef36 2,4,11-16,27
+  s_ff7da9dea3431e::t_5c42a1f2246787 118-137
+  s_ff7da9dea3431e::t_360e0a231e0150 49-51,59,68
+src/store.ts
+  s_ff7da9dea3431e::t_f874fc77734b3b 2,5,13-17,21,25-45
+src/types.ts
+  s_ff7da9dea3431e::t_5a36d24366c0f7 6-7,13
+src/components/CardItem.tsx
+  s_ff7da9dea3431e::t_70d541a8b03804 21-24
+  s_ff7da9dea3431e::t_f07dcce9b94ec8 4
+src/seed.ts
+  s_ff7da9dea3431e::t_369256ce73b7ad 11
+  s_ff7da9dea3431e::t_37c9874e268ab8 20,29,38,47,57
+src/BoardContext.tsx
+  s_ff7da9dea3431e::t_7fb5c59957c239 75-92
+  s_ff7da9dea3431e::t_dc331d02f376ce 13,21,28
+src/App.tsx
+  s_ff7da9dea3431e::t_ae59200d1212e5 8
+  s_ff7da9dea3431e::t_b285a75fefc649 81,83
+  s_ff7da9dea3431e::t_9388c450a70d1d 141-148,157-164,171-172
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f4df15656aa2b7de3375bcd1bd9f8d96d0c8a1d0",
+  "prompts": {},
+  "humans": {
+    "h_bb91a76e3646ab": {
+      "author": "Matt Lloyd <matt@wealthvector.com>"
+    }
+  },
+  "sessions": {
+    "s_ff7da9dea3431e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bc2af174-f3a8-4bb2-b7c5-a0690cfdc339",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Matt Lloyd <matt@wealthvector.com>"
+    }
+  }
+}
