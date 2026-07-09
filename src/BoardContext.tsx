@@ -20,6 +20,7 @@ interface BoardActions {
     note: string,
     priority: Priority,
     workType: WorkType,
+    github?: NonNullable<Card["github"]>,
   ) => void;
   updateCard: (
     cardId: string,
@@ -33,6 +34,7 @@ interface BoardActions {
   moveCard: (cardId: string, toColumnId: string, toIndex: number) => void;
   setCardAgent: (cardId: string, agent: NonNullable<Card["agent"]>) => void;
   clearCardAgent: (cardId: string) => void;
+  clearCardGithub: (cardId: string) => void;
   updateSettings: (settings: Partial<Settings>) => void;
 }
 
@@ -74,7 +76,7 @@ export function BoardProvider({ children }: { children: ReactNode }) {
 
   const actions = useMemo<BoardActions>(
     () => ({
-      addCard: (columnId, title, description, note, priority, workType) =>
+      addCard: (columnId, title, description, note, priority, workType, github) =>
         dispatch({
           type: "addCard",
           columnId,
@@ -83,6 +85,7 @@ export function BoardProvider({ children }: { children: ReactNode }) {
           note,
           priority,
           workType,
+          github,
         }),
       updateCard: (cardId, title, description, note, priority, workType) =>
         dispatch({
@@ -100,6 +103,7 @@ export function BoardProvider({ children }: { children: ReactNode }) {
       setCardAgent: (cardId, agent) =>
         dispatch({ type: "setCardAgent", cardId, agent }),
       clearCardAgent: (cardId) => dispatch({ type: "clearCardAgent", cardId }),
+      clearCardGithub: (cardId) => dispatch({ type: "clearCardGithub", cardId }),
       updateSettings: (settings) =>
         dispatch({ type: "updateSettings", settings }),
     }),
