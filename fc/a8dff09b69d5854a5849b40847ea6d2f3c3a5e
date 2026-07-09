@@ -1,0 +1,50 @@
+src/styles.css
+  s_fa91d1e4f59235::t_41fadd596f4a02 676-720
+src/types.ts
+  s_fa91d1e4f59235::t_39f6944e767c58 23-27
+src/boardReducer.ts
+  s_fa91d1e4f59235::t_8294aabb34ee14 52
+  s_fa91d1e4f59235::t_81d3c514967d1f 13
+  s_fa91d1e4f59235::t_755557cec3c530 28
+  s_fa91d1e4f59235::t_8ece9e98a5211a 141-150
+src-tauri/capabilities/gh-issue-view.json
+  s_fa91d1e4f59235::t_e4b817809ec58e 1-25
+src/components/IssueModal.tsx
+  s_fa91d1e4f59235::t_9f07d32a49803b 6-10,22,38-40
+  s_fa91d1e4f59235::t_0312aa173d5818 140-165
+  s_fa91d1e4f59235::t_037ee9c551a996 239-263
+  s_fa91d1e4f59235::t_5560a8249ea0fa 53-54,68-73,79-86,90-112
+  s_fa91d1e4f59235::t_22d70422f8ada2 113-114
+src/github.ts
+  s_fa91d1e4f59235::t_64ee0040b583ea 1-125
+SPEC.md
+  s_fa91d1e4f59235::t_91520d8c7500c6 105-108
+  s_fa91d1e4f59235::t_0dc387deb214cb 198
+  s_fa91d1e4f59235::t_426564a23e0969 34-41
+  s_fa91d1e4f59235::t_8d46ab4465355a 138-140,161-179
+  s_fa91d1e4f59235::t_ade17dab1dc99c 189-190
+  s_fa91d1e4f59235::t_0ec6808f9507bb 14
+src/App.tsx
+  s_fa91d1e4f59235::t_151904ca0f3161 179-180
+  s_fa91d1e4f59235::t_ba3718f01c9b65 142,150
+src/BoardContext.tsx
+  s_fa91d1e4f59235::t_09ed14836e2944 79,88
+  s_fa91d1e4f59235::t_ded91c9b4c4bea 106
+  s_fa91d1e4f59235::t_4510c5e45e4ece 23,37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "fca8dff09b69d5854a5849b40847ea6d2f3c3a5e",
+  "prompts": {},
+  "sessions": {
+    "s_fa91d1e4f59235": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "8214a9c8-e4d3-4eb1-aae3-43055e55d9c2",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Matt Lloyd <matt@wealthvector.com>"
+    }
+  }
+}
