@@ -139,7 +139,7 @@ function AppInner() {
 
       {modal?.type === "create" && (
         <IssueModal
-          onSubmit={(title, description, note, priority, workType) =>
+          onSubmit={(title, description, note, priority, workType, github) =>
             actions.addCard(
               modal.columnId,
               title,
@@ -147,6 +147,7 @@ function AppInner() {
               note,
               priority,
               workType,
+              github,
             )
           }
           onClose={() => setModal(null)}
@@ -175,6 +176,8 @@ function AppInner() {
             handleSend(editingCard.id, title, description, note, priority, workType)
           }
           onDismissAgent={() => actions.clearCardAgent(editingCard.id)}
+          github={editingCard.github}
+          onDismissGithub={() => actions.clearCardGithub(editingCard.id)}
         />
       )}
 

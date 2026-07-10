@@ -10,6 +10,7 @@ export type BoardAction =
       note: string;
       priority: Priority;
       workType: WorkType;
+      github?: NonNullable<Card["github"]>;
     }
   | {
       type: "updateCard";
@@ -24,6 +25,7 @@ export type BoardAction =
   | { type: "moveCard"; cardId: string; toColumnId: string; toIndex: number }
   | { type: "setCardAgent"; cardId: string; agent: NonNullable<Card["agent"]> }
   | { type: "clearCardAgent"; cardId: string }
+  | { type: "clearCardGithub"; cardId: string }
   | { type: "updateSettings"; settings: Partial<Settings> };
 
 function nowIso(): string {
@@ -47,6 +49,7 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
         workType: action.workType,
         createdAt: now,
         updatedAt: now,
+        ...(action.github ? { github: action.github } : {}),
       };
       return {
         ...state,
@@ -129,6 +132,16 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
       const existing = state.cards[action.cardId];
       if (!existing || !existing.agent) return state;
       const { agent: _agent, ...rest } = existing;
+      return {
+        ...state,
+        cards: { ...state.cards, [action.cardId]: rest },
+      };
+    }
+
+    case "clearCardGithub": {
+      const existing = state.cards[action.cardId];
+      if (!existing || !existing.github) return state;
+      const { github: _github, ...rest } = existing;
       return {
         ...state,
         cards: { ...state.cards, [action.cardId]: rest },

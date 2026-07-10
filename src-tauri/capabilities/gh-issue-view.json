@@ -1,0 +1,25 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "gh-issue-view",
+  "description": "Read-only GitHub issue fetch. The script string is pinned to `exec gh issue view \"$1\" --repo \"$2\" --json title,body,number,url`; only the issue number and owner/repo slug vary, both regex-validated (digits and a valid slug — no `..`, no spaces, no shell metacharacters).",
+  "windows": ["main"],
+  "permissions": [
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "gh-issue-view",
+          "cmd": "/bin/zsh",
+          "args": [
+            "-lc",
+            "exec gh issue view \"$1\" --repo \"$2\" --json title,body,number,url",
+            "_",
+            { "validator": "[0-9]+" },
+            { "validator": "[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+" }
+          ],
+          "sidecar": false
+        }
+      ]
+    }
+  ]
+}

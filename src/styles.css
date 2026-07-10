@@ -673,6 +673,51 @@ button {
   color: var(--text-muted);
 }
 
+/* ---- GitHub import (new-card modal) ---- */
+
+.import-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background-color: var(--bg);
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+
+.import-row .import-input {
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.import-error {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 12px;
+  color: var(--danger);
+}
+
+.import-ok {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.github-breadcrumb .dot {
+  background-color: var(--text-muted);
+}
+
+.github-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.github-link:hover {
+  text-decoration: underline;
+}
+
 /* ---- Toast ---- */
 
 .toast {

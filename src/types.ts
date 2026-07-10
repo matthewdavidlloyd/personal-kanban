@@ -20,6 +20,11 @@ export interface Card {
     id: string; // short id from `claude --bg`, e.g. "900a7040"
     dispatchedAt: string; // ISO
   };
+  /** Informational breadcrumb of the source issue — one-shot import, never re-synced. */
+  github?: {
+    number: number;
+    url: string;
+  };
 }
 
 export interface Column {

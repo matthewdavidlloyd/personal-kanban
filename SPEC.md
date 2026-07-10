@@ -11,6 +11,7 @@ A single-user kanban board for macOS. Real desktop app (dock icon, `.app` bundle
 | Agent lifecycle | **Not the board's job.** No polling, badges, or attach buttons. Columns mean what *you're* working on; agents are managed via `claude agents` (attach, logs, stop). | Keeps the board a board; avoids leaking agent state into task state |
 | Claude working dir | One global setting | Single configurable project directory used by every dispatch |
 | Permissions | Always Claude's defaults — no `--permission-mode` flag, no app setting | Managed natively via the working dir's own Claude settings (allowlists in `.claude/settings.json`); the board shouldn't duplicate that knob |
+| GitHub import | Read-only via the `gh` CLI (one pinned command, JSON out); user runs `gh auth login` themselves | Sidesteps OAuth/token storage; reuses the same pinned-shell capability pattern as `claude-dispatch`; one-shot import, no sync |
 
 ## Features (v1)
 
@@ -29,6 +30,14 @@ A single-user kanban board for macOS. Real desktop app (dock icon, `.app` bundle
 - `+` button in each column header, plus keyboard shortcut `N` (creates in first column).
 - Opens a modal: **Title** (required), **Note** (optional short status line), **Priority** (Urgent / High / Medium / Low, default Medium), **Type** (Review / Coding / Admin, default Coding), **Description** (optional, plain-text textarea).
 - `Cmd+Enter` submits, `Esc` cancels.
+
+### Import from GitHub issue
+- New Card modal has a compact **Import from GitHub** row above Title: paste a full issue URL (`https://github.com/owner/repo/issues/123`) or the shorthand `owner/repo#123`, click **Import**.
+- Runs `gh issue view <number> --repo <owner/repo> --json title,body,number,url` (read-only), prefills **Title** with the issue title and **Description** with the issue body, and stashes `{ number, url }` on the card as a breadcrumb — shown in the Issue details modal (e.g. `issue #123 · github.com/owner/repo/issues/123`, click-to-open in the browser). Priority/Type/Note stay at their defaults for the user to adjust before saving.
+- Only these two input shapes are accepted — no default repo setting in v1, no bare `#123`. Anything else is a parse error surfaced inline in the modal.
+- Read-only by design: never writes back to GitHub, no polling, no re-sync. Editing the imported card locally does not touch the issue; closing/editing the issue does not touch the card.
+- Prereq: `gh` installed and `gh auth login` already run in the user's shell. Auth failure or missing `gh` surfaces as an error toast pointing to `gh auth login`; the app doesn't manage tokens.
+- Same shell hygiene as dispatch: invoked via `/bin/zsh -lc` for GUI PATH, script string pinned to a literal in a second capability file, number and repo passed as individual argv elements (never interpolated).
 
 ### Issue details
 - Clicking a card opens the same modal in edit mode: title, note, priority, type, description, **Delete**, and **Send to Claude Code**.
@@ -93,6 +102,10 @@ interface Card {
     id: string;                 // short id from `claude --bg`, e.g. "900a7040"
     dispatchedAt: string;       // ISO
   };                            // informational breadcrumb — NOT status
+  github?: {
+    number: number;             // GitHub issue number
+    url: string;                // https URL to the issue
+  };                            // informational breadcrumb — one-shot import, never re-synced
 }
 
 interface Settings {
@@ -122,7 +135,9 @@ interface Settings {
 
 ### Shell permission scoping
 
-The shell plugin denies everything by default. The capability grants exactly one command shape, pinning the script string to a literal — only the trailing argv items (title / prompt) vary:
+The shell plugin denies everything by default. Each shell command the app can run is granted by a separate capability file, and each pins its script string to a literal — only trailing argv items vary.
+
+**`claude-dispatch`** — background agent dispatch:
 
 ```json
 {
@@ -143,7 +158,25 @@ The shell plugin denies everything by default. The capability grants exactly one
 }
 ```
 
-Confirmed against the generated schema: the fixed args (`-lc`, the script literal, `_`) must match exactly, and each `validator` regex is auto-wrapped in `^…$` (full-string match) unless `raw: true`. `[\s\S]*` matches any input including newlines without depending on inline-flag placement — the equivalent, more robust form of the original `(?s).*` intent (free text only in the trailing title/prompt arguments). This lives in its own capability file (`src-tauri/capabilities/claude-dispatch.json`); the default capability grants `core`/`store`/`fs` only (no `shell:default`).
+**`gh-issue-view`** — read-only GitHub issue import. Same shape, different pinned script:
+
+```json
+{
+  "name": "gh-issue-view",
+  "cmd": "/bin/zsh",
+  "args": [
+    "-lc",
+    "exec gh issue view \"$1\" --repo \"$2\" --json title,body,number,url",
+    "_",
+    { "validator": "[0-9]+" },
+    { "validator": "[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+" }
+  ]
+}
+```
+
+Read-only is enforced two ways: the subcommand (`issue view`) and flags are pinned in the script literal, and the number/repo validators tightly restrict the arg shape (digits and a valid `owner/repo` slug — no `..`, no spaces, no shell metacharacters).
+
+Confirmed against the generated schema: the fixed args (`-lc`, the script literal, `_`) must match exactly, and each `validator` regex is auto-wrapped in `^…$` (full-string match) unless `raw: true`. `[\s\S]*` matches any input including newlines without depending on inline-flag placement — the equivalent, more robust form of the original `(?s).*` intent (free text only in the trailing title/prompt arguments of `claude-dispatch`). Each command lives in its own capability file (`src-tauri/capabilities/claude-dispatch.json`, `src-tauri/capabilities/gh-issue-view.json`); the default capability grants `core`/`store`/`fs` only (no `shell:default`).
 
 ## Non-goals (v1)
 
@@ -153,6 +186,8 @@ Confirmed against the generated schema: the fixed args (`-lc`, the script litera
 - Per-issue working directory — v1.1 candidate
 - Markdown rendering in descriptions — v1.1 candidate
 - Labels, due dates, search/filter, multiple boards
+- GitHub *sync* (writing back to issues, live updates, comment mirroring, re-fetch on open) — import is deliberately one-shot; edit locally after
+- GitHub *picker* UI (list open issues from a configured repo, assignee filters, pagination) — v1.1 candidate; paste-import covers the common case
 - Sync, multi-user, auth — never
 
 ## Risks
@@ -160,6 +195,7 @@ Confirmed against the generated schema: the fixed args (`-lc`, the script litera
 | Risk | Mitigation |
 |---|---|
 | `claude` not on GUI PATH | Invocation via `/bin/zsh -lc` (login shell) |
+| `gh` not on GUI PATH, or user not logged in | Same `/bin/zsh -lc` invocation; auth/missing-binary failures surface as an error toast pointing to `gh auth login` — the app doesn't manage tokens |
 | `--bg` stdout format changes across claude versions | Defensive parse; on failure, error toast with raw output (no silent fallback) |
 | Unattended agents wait at permission prompts | By design — attach from `claude agents` when ready; tune the repo's own `.claude/settings.json` allowlists if it's frequent |
 | Title/prompt quoting/injection into shell | Both passed as individual argv elements end to end; script string is a fixed literal |
