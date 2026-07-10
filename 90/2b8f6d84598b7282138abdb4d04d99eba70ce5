@@ -1,0 +1,110 @@
+src/migrate.ts
+  s_2af6fabdc47059::t_680e27a53c884f 1-100
+src/styles.css
+  s_2af6fabdc47059::t_f2dd7c206efa67 152-157,162,165,168-172,175,183,187-190,228-275,288-289,293-302,326
+  s_2af6fabdc47059::t_d8006fde777da9 743-831
+  s_2af6fabdc47059::t_7e9ea677869b68 276,278-283,287,303-317,320-325
+  s_2af6fabdc47059::t_3c8069130c7e2b 384-396
+  s_2af6fabdc47059::t_d365e65e4c5e98 476-479
+CLAUDE.md
+  s_2af6fabdc47059::t_7d6d7e796e0f8c 23-29
+  s_2af6fabdc47059::t_d8937cdfe58f82 35-37
+src/boardReducer.ts
+  s_2af6fabdc47059::t_f79222820dd282 96
+  s_2af6fabdc47059::t_d430d28be1c590 1-9,30,33-39,49-67,82,91-95,97-99,117,133,139,142-147,152-155
+src/BoardContext.tsx
+  s_2af6fabdc47059::t_0a913dcbfd7e1d 13-20,38,41-46
+  s_2af6fabdc47059::t_95b95e204206d4 102,110,113-114
+src/board.ts
+  s_2af6fabdc47059::t_085ad27240513a 1-33
+src/store.ts
+  s_2af6fabdc47059::t_4553169f64e426 2,4,25
+src/github.ts
+  s_2af6fabdc47059::t_2a157433fd66f3 31,59-99
+  s_2af6fabdc47059::t_edb877e0fe57b3 13,16-19,26-30
+  s_2af6fabdc47059::t_4435ad8ffedebd 32
+src/components/CardItem.tsx
+  s_2af6fabdc47059::t_9fd5c7d33646ce 36-45
+  s_2af6fabdc47059::t_2949f8a8d15615 14-17,23
+SPEC.md
+  s_2af6fabdc47059::t_1e8ce9ad4bbd57 19-21,23
+  s_2af6fabdc47059::t_ec1057a414ecb0 58,62-68
+  s_2af6fabdc47059::t_4e5501f02f3a00 33
+  s_2af6fabdc47059::t_594dfa1bb735e7 52
+  s_2af6fabdc47059::t_c975bbbdd5a095 22
+  s_2af6fabdc47059::t_450b1d8ba8ed58 27
+  s_90c802cd61b5b0::t_18a886bb524f21 28
+  s_2af6fabdc47059::t_354fc41dd7b96a 116
+  s_90c802cd61b5b0::t_3aa2b151d513cc 213,215
+  s_2af6fabdc47059::t_d98347adba3870 89
+  s_90c802cd61b5b0::t_e8114f7902882e 98,106-107,115,117,130-132
+  s_90c802cd61b5b0::t_8b0c30e2762b1d 56,60-61,70-72,74-78,80-81
+  s_90c802cd61b5b0::t_e26a77c5c11b9a 45,48,50-51,53-54
+  s_90c802cd61b5b0::t_537d282e60691b 133-134
+  s_2af6fabdc47059::t_917c5d941d00ae 69
+src/dnd.ts
+  s_2af6fabdc47059::t_1c31e394e5a7b0 39,46-48
+  s_2af6fabdc47059::t_d42947e7662e46 75-76
+  s_2af6fabdc47059::t_c0ce7a6daf51d8 4-10,13-30
+  s_2af6fabdc47059::t_a27dc19d3ee80e 31
+src/claude.ts
+  s_2af6fabdc47059::t_01e03305aeaf66 13-15,20-35
+  s_2af6fabdc47059::t_be9d6258368461 54-55,59,64
+  s_2af6fabdc47059::t_dff99954fc19a7 36-37
+src/App.tsx
+  s_2af6fabdc47059::t_85cc5840c1b407 79-81,87-89,91-99,107-115,117-123,126-127,134-139,146
+  s_2af6fabdc47059::t_c4a3ddc5c8b5ee 90,100-106,116
+  s_2af6fabdc47059::t_e3b5a1120ec868 3,7-17
+  s_2af6fabdc47059::t_43d07f8a85dcbb 187,205-207,213-214,221-222
+src/workType.ts
+  s_2af6fabdc47059::t_c11114f04a22c3 3-4
+  s_2af6fabdc47059::t_ab88b705d71117 13-20
+src/seed.ts
+  s_2af6fabdc47059::t_a0978e640a6698 4,9-28,37,47,57,67,78
+src/components/Board.tsx
+  s_2af6fabdc47059::t_6c0e0cf50c2575 207
+  s_2af6fabdc47059::t_1de63722269392 20-23
+  s_2af6fabdc47059::t_dd3146ef5620bf 188-192
+  s_2af6fabdc47059::t_26084b84aef18c 25,28,32,35-37,40-44,85-111,113-114,117-125,160-169,186-187,205-206,208,214-254,256-274
+  s_2af6fabdc47059::t_9276d95e1b57dc 24
+src/components/LaneCell.tsx
+  s_2af6fabdc47059::t_fe9d43e4896569 22-24,43-63
+  s_2af6fabdc47059::t_95ae4cfe53ce0f 1-21,25-42,64-66
+src/types.ts
+  s_2af6fabdc47059::t_fc2c15e790b753 8-12,20-23,41-42
+src/components/IssueModal.tsx
+  s_2af6fabdc47059::t_c6a890f5cf6146 142-144
+  s_2af6fabdc47059::t_de50b54483c611 2-3,11-12,16-25,29-30,37,46-49,59,66,79,81-85,105,136-141,145-159,162-171,184-188,301-383,429-472,474-479
+  s_2af6fabdc47059::t_8e21fd792f0d76 473,480
+  s_2af6fabdc47059::t_f333a8c94cfec3 189-195
+  s_2af6fabdc47059::t_93a477eb4b8c4f 196
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "902b8f6d84598b7282138abdb4d04d99eba70ce5",
+  "prompts": {},
+  "humans": {
+    "h_bb91a76e3646ab": {
+      "author": "Matt Lloyd <matt@wealthvector.com>"
+    }
+  },
+  "sessions": {
+    "s_2af6fabdc47059": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "38e043d4-6bcd-4e1b-9ff4-3624081c79b5",
+        "model": "claude-opus-4-8"
+      },
+      "human_author": "Matt Lloyd <matt@wealthvector.com>"
+    },
+    "s_90c802cd61b5b0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "4a584bac-3d52-4c43-939b-0efe69dd959e",
+        "model": "claude-opus-4-7"
+      },
+      "human_author": "Matt Lloyd <matt@wealthvector.com>"
+    }
+  }
+}
