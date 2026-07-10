@@ -16,19 +16,21 @@ A single-user kanban board for macOS. Real desktop app (dock icon, `.app` bundle
 ## Features (v1)
 
 ### Board
-- One board, full-height swim lanes rendered left to right and centered. Lanes are flat and flush with thin dividers (a "whiteboard" look), each with a header row (name · count · `+`). Defaults: **Backlog**, **In Progress**, **Waiting**, **Done**.
-- Columns come from stored state; no column-management UI in v1 (edit the JSON if needed — see v1.1).
-- Cards show title, an optional **note** (short freeform status line), and a **priority** badge; card background is tinted by **work type** (Review / Coding / Admin — "postit" colors), plus a small static marker if an agent has been dispatched (a breadcrumb, not a status). Click a card to open details.
+- One board, full-height **columns** rendered left to right and centered. Columns are flat and flush with thin dividers (a "whiteboard" look), each with a header row (name · total count · `+`). Defaults: **Backlog**, **In Progress**, **Waiting**, **Done**.
+- Each column is split horizontally into three **swimlanes** by work type, top to bottom — **Coding**, **Review**, **Admin** — with a label rail on the left of the board. A card lives in exactly one cell (column × swimlane). Order is per cell. The **Coding** lane is given a height bias (≈½ the board height; Review and Admin ≈¼ each) since it's where most cards live. Each cell shows its own issue count in the corner, on top of the per-column total in the header.
+- Columns come from stored state; no column-management UI in v1 (edit the JSON if needed — see v1.1). Swimlanes are fixed (the three work types, in a fixed order) — no add/remove/rename/reorder.
+- Cards show title, an optional **note** (short freeform status line), and a **priority** badge. Cards are visually uniform — the swimlane a card lives in is its work-type signal, so there's no per-card tint. Small static markers appear if an agent has been dispatched and if the card has linked PRs (breadcrumbs, not status). Click a card to open details.
+- Swimlane rails on the left use the "postit" colors (Coding = teal, Review = rose, Admin = amber) as the categorization signal for the eye.
 - No in-app title bar; the OS window title is `personal-kanban`. Settings live behind a floating gear (top-right) or `Cmd+,`.
 
 ### Drag and drop
-- Drag cards between columns and reorder within a column.
-- Order is explicit (persisted array order), not sorted.
+- Drag cards between cells (column × swimlane) and reorder within a cell. A card's swimlane *is* its work type — there's no separate stored `workType` field, so moving a card to another swimlane changes its work type by definition.
+- Order is explicit (persisted array order, per cell), not sorted.
 - Library: `@dnd-kit/core` + `@dnd-kit/sortable`.
 
 ### Create issue
 - `+` button in each column header, plus keyboard shortcut `N` (creates in first column).
-- Opens a modal: **Title** (required), **Note** (optional short status line), **Priority** (Urgent / High / Medium / Low, default Medium), **Type** (Review / Coding / Admin, default Coding), **Description** (optional, plain-text textarea).
+- Opens a modal: **Title** (required), **Note** (optional short status line), **Priority** (Urgent / High / Medium / Low, default Medium), **Type** (Coding / Review / Admin, default Coding), **Description** (optional, plain-text textarea).
 - `Cmd+Enter` submits, `Esc` cancels.
 
 ### Import from GitHub issue
@@ -40,28 +42,43 @@ A single-user kanban board for macOS. Real desktop app (dock icon, `.app` bundle
 - Same shell hygiene as dispatch: invoked via `/bin/zsh -lc` for GUI PATH, script string pinned to a literal in a second capability file, number and repo passed as individual argv elements (never interpolated).
 
 ### Issue details
-- Clicking a card opens the same modal in edit mode: title, note, priority, type, description, **Delete**, and **Send to Claude Code**.
+- Clicking a card opens the same modal in edit mode: title, note, priority, type, description, a **Pull requests** list (0..n links, add/remove — see below), **Delete**, and one or more Claude dispatch buttons (see [Dispatch](#dispatch-to-claude-code-background)).
 - Edits save on submit; delete asks for confirmation.
 - Priority is a visual attribute only — the board stays manually ordered (see Drag and drop), never auto-sorted by priority.
+- Changing the type moves the card to the **end of the target swimlane** in the same column. Reorder afterwards by dragging.
 
-### Send to Claude Code (background dispatch)
-- Runs, in the configured project directory (shell plugin `cwd` option), returning immediately:
+### Link pull requests
+- Below the note/type fields in edit mode, a **Pull requests** row: text input + **Link** button. Paste a full PR URL (`https://github.com/owner/repo/pull/123`) or the shorthand `owner/repo#123`.
+- A card may link **multiple PRs** — persisted as an ordered list `pullRequests: PullRequest[]` on the card. Each renders as a breadcrumb (`PR #123 · owner/repo`, click-to-open in the browser, `×` to remove) and carries its own per-PR **Fix**/**Review** dispatch actions (see [Dispatch](#dispatch-to-claude-code-background)).
+- Parse only — no `gh pr view` in v1. Anything that doesn't match the two accepted shapes is an inline parse error (same UX as the GitHub issue import row).
+- Read-only breadcrumbs — the app never writes back to GitHub, never polls, never re-syncs. Editing a linked PR on GitHub does nothing to the card.
 
-  ```
-  claude --bg --name "<title>" "<title>\n\n<description>"
-  ```
+### Dispatch to Claude Code (background)
 
-- Parses the short agent id from stdout — observed format:
+All dispatch is `claude --bg` with the same argv shape — only the **prompt** varies by mode. "Work type" below means the card's swimlane. The modal shows a subset of actions per card:
 
-  ```
-  backgrounded · 900a7040 · <name>
-  ```
+| Mode | Prompt | Shown when |
+|---|---|---|
+| **Send** | `<title>\n\n<description>` (title-only if description empty) | work type ≠ Review |
+| **Fix PR** (one) | `Fix PR:\n<url>\n\n<title>\n\n<description>` | work type ≠ Review — per PR, on each PR breadcrumb |
+| **Fix all PRs** | `Fix PRs:\n<url1>\n<url2>…\n\n<title>\n\n<description>` | work type ≠ Review **and** ≥2 PRs linked |
+| **Review PR** (one) | `Review PR:\n<url>\n\n<title>\n\n<description>` | ≥1 PR linked (any work type) — per PR, on each PR breadcrumb |
+| **Review all PRs** | `Review PRs:\n<url1>\n<url2>…\n\n<title>\n\n<description>` | ≥2 PRs linked (any work type) |
 
-  If parsing fails: error toast showing the raw output. No silent fallback.
-- Stores `{ id, dispatchedAt }` on the card — an informational breadcrumb, shown in the modal (e.g. "agent `900a7040` · sent 2h ago") for manual `claude attach <id>`. Dispatching again replaces it (the old agent keeps running; manage it via `claude agents`). A dismiss control clears it.
+Per-PR **Fix**/**Review** actions sit on each PR breadcrumb; the **all** variants appear only when ≥2 PRs are linked (with a single PR the per-PR action already covers it). The header is singular for one PR (`Fix PR:`) and plural for many (`Fix PRs:`) — likewise for Review. For a Review card, **only** Review actions are shown — Send and Fix are hidden; a Review card with no PR linked shows a disabled Review PR button with a "Link a PR first" hint.
+
+The shell invocation is unchanged — `zsh -lc 'exec claude --bg --name "$1" "$2"' _ <title> <prompt>` — so the pinned script literal and the `claude-dispatch` capability don't need changes.
+
+**Auto-move on successful dispatch**: after any dispatch mode returns, the card moves to the top of the **In Progress** column, staying in its current swimlane. Skipped if the card is already in In Progress or that column doesn't exist. A failed dispatch does not move the card.
+
+Everything else about dispatch is unchanged from v1.0:
+
+- Runs in the configured project directory (shell plugin `cwd`), returning immediately.
+- Parses the short agent id from stdout — observed format `backgrounded · 900a7040 · <name>`. Parse failure surfaces the raw output as an error toast. No silent fallback.
+- Stores `{ id, dispatchedAt }` on the card as a breadcrumb (e.g. "agent `900a7040` · sent 2h ago") for manual `claude attach <id>`. Re-dispatching (any mode) replaces it — the old agent keeps running; manage via `claude agents`. A dismiss control clears it.
 - Renaming a card later does **not** rename an already-dispatched session.
-- No permission flags are passed — the agent runs with whatever the working dir's Claude settings allow. An unattended agent that hits a permission prompt simply waits until you attach from `claude agents`; if that happens too often, tune the repo's `.claude/settings.json` allowlists, not the board.
-- All `claude` invocations go through `/bin/zsh -lc` (login shell) because a GUI-launched process doesn't inherit shell PATH. Title and prompt are passed as individual argv elements (`zsh -lc 'exec claude --bg --name "$1" "$2"' _ <title> <prompt>`) — never interpolated into a shell string, so quoting/injection is a non-issue.
+- No permission flags — the agent runs with whatever the working dir's Claude settings allow. An unattended agent that hits a permission prompt waits until you attach from `claude agents`; tune the repo's `.claude/settings.json` allowlists if it's frequent.
+- All `claude` invocations go through `/bin/zsh -lc` (login shell) for GUI PATH. Title and prompt are individual argv elements — never interpolated into a shell string, so quoting/injection is a non-issue.
 
 ### Settings
 - Floating gear (top-right) or `Cmd+,` → modal with one field: **Project directory** — working dir for all dispatches. Prefilled with the home directory when unset. Validated to exist on save (fs plugin `exists`, scoped to the home tree — directories outside `$HOME` can't be validated, so Send stays disabled for them in v1).
@@ -69,7 +86,7 @@ A single-user kanban board for macOS. Real desktop app (dock icon, `.app` bundle
 ### Persistence
 - `tauri-plugin-store`, single file `store.json` in the app data dir (`~/Library/Application Support/<bundle-id>/`).
 - Auto-save with default debounce (100ms); every mutation writes through.
-- No formal migrations for v1: fields added after a `store.json` was first written (e.g. `priority`) are backfilled with a default when the board is loaded; the store is small enough to hand-edit too.
+- No formal migrations for v1: fields added after a `store.json` was first written (e.g. `priority`, `pullRequests`) are backfilled with a default when the board is loaded. The one shape change — flat `Column.cardIds: string[]` → `Column.lanes: Record<WorkType, string[]>` — is handled the same way at load time: existing ids are grouped into lanes by each card's old `workType` (preserving order), after which the now-redundant per-card `workType` field is dropped. The store is small enough to hand-edit too.
 
 ## Data model
 
@@ -78,7 +95,7 @@ type Priority = "urgent" | "high" | "medium" | "low";
 type WorkType = "review" | "coding" | "admin";
 
 interface BoardState {
-  columns: Column[];            // ordered
+  columns: Column[];            // ordered, left to right
   cards: Record<string, Card>;
   settings: Settings;
 }
@@ -86,7 +103,8 @@ interface BoardState {
 interface Column {
   id: string;
   name: string;
-  cardIds: string[];            // ordered — this IS the card order
+  // One ordered list per swimlane. THIS is the card order (per cell).
+  lanes: Record<WorkType, string[]>;
 }
 
 interface Card {
@@ -94,8 +112,9 @@ interface Card {
   title: string;
   description: string;
   note: string;                 // short freeform status line shown on card face (default "")
-  priority: Priority;           // Urgent / High / Medium / Low
-  workType: WorkType;           // Review / Coding / Admin (default Coding)
+  priority: Priority;           // Urgent / High / Medium / Low (default Medium)
+  // No workType field — a card's work type IS the swimlane it lives in (its Column.lanes key).
+  pullRequests: PullRequest[];  // ordered — display order matches link order (default [])
   createdAt: string;            // ISO
   updatedAt: string;
   agent?: {
@@ -106,6 +125,11 @@ interface Card {
     number: number;             // GitHub issue number
     url: string;                // https URL to the issue
   };                            // informational breadcrumb — one-shot import, never re-synced
+}
+
+interface PullRequest {
+  number: number;               // GitHub PR number
+  url: string;                  // canonical https URL to the PR
 }
 
 interface Settings {
@@ -186,8 +210,9 @@ Confirmed against the generated schema: the fixed args (`-lc`, the script litera
 - Per-issue working directory — v1.1 candidate
 - Markdown rendering in descriptions — v1.1 candidate
 - Labels, due dates, search/filter, multiple boards
-- GitHub *sync* (writing back to issues, live updates, comment mirroring, re-fetch on open) — import is deliberately one-shot; edit locally after
+- GitHub *sync* (writing back to issues or PRs, live updates, comment mirroring, re-fetch on open) — import/link is deliberately one-shot; edit locally after
 - GitHub *picker* UI (list open issues from a configured repo, assignee filters, pagination) — v1.1 candidate; paste-import covers the common case
+- PR *validation/prefill* (calling `gh pr view` to confirm a linked PR exists or fetch its title) — v1.1 candidate; paste-and-link is enough for v1
 - Sync, multi-user, auth — never
 
 ## Risks

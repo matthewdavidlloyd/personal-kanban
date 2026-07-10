@@ -10,13 +10,24 @@ const GH_NAME = "gh-issue-view";
 const URL_RE =
   /^https?:\/\/(?:www\.)?github\.com\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/issues\/(\d+)(?:[/?#].*)?$/;
 
-// Shorthand: owner/repo#123
+// Shorthand: owner/repo#123 (shared by issue and PR refs)
 const SHORT_RE = /^([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)#(\d+)$/;
+
+// Full PR URL: https://github.com/owner/repo/pull/123 (tolerate trailing /?#…)
+const PR_URL_RE =
+  /^https?:\/\/(?:www\.)?github\.com\/([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)\/pull\/(\d+)(?:[/?#].*)?$/;
 
 export interface IssueRef {
   owner: string;
   repo: string;
   number: number;
+}
+
+export interface PrRef {
+  owner: string;
+  repo: string;
+  number: number;
+  url: string; // canonical https URL
 }
 
 export interface GithubIssue {
@@ -43,6 +54,47 @@ export function parseIssueRef(input: string): IssueRef | null {
     return { owner: short[1], repo: short[2], number: Number(short[3]) };
   }
   return null;
+}
+
+/** Canonical PR URL for an owner/repo/number triple. */
+function canonicalPrUrl(owner: string, repo: string, number: number): string {
+  return `https://github.com/${owner}/${repo}/pull/${number}`;
+}
+
+/**
+ * Parse a GitHub PR reference from either a full PR URL or `owner/repo#123`.
+ * Parse only — no `gh pr view` in v1. Returns null on anything else (surfaced as
+ * an inline parse error in the modal). The `url` is normalized to canonical form.
+ */
+export function parsePrRef(input: string): PrRef | null {
+  const s = input.trim();
+  const url = s.match(PR_URL_RE);
+  if (url) {
+    const [, owner, repo, num] = url;
+    return {
+      owner,
+      repo,
+      number: Number(num),
+      url: canonicalPrUrl(owner, repo, Number(num)),
+    };
+  }
+  const short = s.match(SHORT_RE);
+  if (short) {
+    const [, owner, repo, num] = short;
+    return {
+      owner,
+      repo,
+      number: Number(num),
+      url: canonicalPrUrl(owner, repo, Number(num)),
+    };
+  }
+  return null;
+}
+
+/** `owner/repo` for a PR breadcrumb, parsed from a canonical PR URL ("" if unparseable). */
+export function prRepoLabel(url: string): string {
+  const m = url.match(PR_URL_RE);
+  return m ? `${m[1]}/${m[2]}` : "";
 }
 
 /**

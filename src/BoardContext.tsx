@@ -10,7 +10,14 @@ import {
 } from "react";
 import { boardReducer } from "./boardReducer";
 import { loadBoardState, saveBoardState } from "./store";
-import type { BoardState, Card, Priority, Settings, WorkType } from "./types";
+import type {
+  BoardState,
+  Card,
+  Priority,
+  PullRequest,
+  Settings,
+  WorkType,
+} from "./types";
 
 interface BoardActions {
   addCard: (
@@ -28,10 +35,15 @@ interface BoardActions {
     description: string,
     note: string,
     priority: Priority,
-    workType: WorkType,
+    pullRequests: PullRequest[],
   ) => void;
   deleteCard: (cardId: string) => void;
-  moveCard: (cardId: string, toColumnId: string, toIndex: number) => void;
+  moveCard: (
+    cardId: string,
+    toColumnId: string,
+    toWorkType: WorkType,
+    toIndex: number,
+  ) => void;
   setCardAgent: (cardId: string, agent: NonNullable<Card["agent"]>) => void;
   clearCardAgent: (cardId: string) => void;
   clearCardGithub: (cardId: string) => void;
@@ -87,7 +99,7 @@ export function BoardProvider({ children }: { children: ReactNode }) {
           workType,
           github,
         }),
-      updateCard: (cardId, title, description, note, priority, workType) =>
+      updateCard: (cardId, title, description, note, priority, pullRequests) =>
         dispatch({
           type: "updateCard",
           cardId,
@@ -95,11 +107,11 @@ export function BoardProvider({ children }: { children: ReactNode }) {
           description,
           note,
           priority,
-          workType,
+          pullRequests,
         }),
       deleteCard: (cardId) => dispatch({ type: "deleteCard", cardId }),
-      moveCard: (cardId, toColumnId, toIndex) =>
-        dispatch({ type: "moveCard", cardId, toColumnId, toIndex }),
+      moveCard: (cardId, toColumnId, toWorkType, toIndex) =>
+        dispatch({ type: "moveCard", cardId, toColumnId, toWorkType, toIndex }),
       setCardAgent: (cardId, agent) =>
         dispatch({ type: "setCardAgent", cardId, agent }),
       clearCardAgent: (cardId) => dispatch({ type: "clearCardAgent", cardId }),

@@ -1,11 +1,20 @@
 import { useCallback, useEffect, useState } from "react";
 import { Board } from "./components/Board";
-import { IssueModal } from "./components/IssueModal";
+import { IssueModal, type DispatchFields } from "./components/IssueModal";
 import { SettingsModal } from "./components/SettingsModal";
 import { Toast } from "./components/Toast";
 import { BoardProvider, useBoard } from "./BoardContext";
-import { DispatchError, dispatchToClaude, projectDirExists } from "./claude";
-import type { Priority, WorkType } from "./types";
+import {
+  DispatchError,
+  buildDispatchPrompt,
+  dispatchToClaude,
+  projectDirExists,
+  type DispatchMode,
+} from "./claude";
+import { cardWorkType, findCardLocation } from "./board";
+import { DEFAULT_WORK_TYPE } from "./workType";
+
+const IN_PROGRESS_ID = "in-progress";
 
 type ModalState =
   | { type: "create"; columnId: string }
@@ -67,38 +76,74 @@ function AppInner() {
 
   const editingCard =
     modal?.type === "edit" ? state.cards[modal.cardId] : undefined;
+  const editingWorkType = editingCard
+    ? cardWorkType(state, editingCard.id) ?? DEFAULT_WORK_TYPE
+    : undefined;
 
   const sendHint = projectDir.trim()
     ? "Project directory not found — check Settings"
     : "Set a project directory in Settings first";
 
-  const handleSend = useCallback(
-    async (
-      cardId: string,
-      title: string,
-      description: string,
-      note: string,
-      priority: Priority,
-      workType: WorkType,
-    ) => {
-      actions.updateCard(cardId, title, description, note, priority, workType);
+  // Persist the non-lane edits, then (if the Type changed) move the card to the
+  // end of the target swimlane in the same column.
+  const saveEdits = useCallback(
+    (cardId: string, fields: DispatchFields) => {
+      actions.updateCard(
+        cardId,
+        fields.title,
+        fields.description,
+        fields.note,
+        fields.priority,
+        fields.pullRequests,
+      );
+      const loc = findCardLocation(state, cardId);
+      if (loc && fields.workType !== loc.workType) {
+        actions.moveCard(
+          cardId,
+          loc.columnId,
+          fields.workType,
+          Number.MAX_SAFE_INTEGER,
+        );
+      }
+    },
+    [actions, state],
+  );
+
+  const handleDispatch = useCallback(
+    async (cardId: string, mode: DispatchMode, prUrls: string[], fields: DispatchFields) => {
+      // Persist edits (including any Type/lane change) before dispatching.
+      const loc = findCardLocation(state, cardId);
+      saveEdits(cardId, fields);
+
+      const prompt = buildDispatchPrompt({
+        mode,
+        title: fields.title,
+        description: fields.description,
+        prUrls,
+      });
       try {
         const { id } = await dispatchToClaude({
-          title,
-          description,
+          title: fields.title,
+          prompt,
           projectDir,
         });
         actions.setCardAgent(cardId, {
           id,
           dispatchedAt: new Date().toISOString(),
         });
+        // Auto-move to the top of In Progress, staying in the card's swimlane.
+        // Skipped if it's already there or that column doesn't exist.
+        const hasInProgress = state.columns.some((c) => c.id === IN_PROGRESS_ID);
+        if (hasInProgress && loc?.columnId !== IN_PROGRESS_ID) {
+          actions.moveCard(cardId, IN_PROGRESS_ID, fields.workType, 0);
+        }
       } catch (e) {
         const message =
           e instanceof DispatchError ? e.message : `Dispatch failed: ${String(e)}`;
         setToast(message);
       }
     },
-    [actions, projectDir],
+    [actions, projectDir, saveEdits, state],
   );
 
   return (
@@ -139,7 +184,7 @@ function AppInner() {
 
       {modal?.type === "create" && (
         <IssueModal
-          onSubmit={(title, description, note, priority, workType, github) =>
+          onSubmit={(title, description, note, priority, workType, _prs, github) =>
             actions.addCard(
               modal.columnId,
               title,
@@ -157,23 +202,24 @@ function AppInner() {
       {modal?.type === "edit" && editingCard && (
         <IssueModal
           card={editingCard}
-          onSubmit={(title, description, note, priority, workType) =>
-            actions.updateCard(
-              editingCard.id,
+          workType={editingWorkType}
+          onSubmit={(title, description, note, priority, workType, pullRequests) =>
+            saveEdits(editingCard.id, {
               title,
               description,
               note,
               priority,
               workType,
-            )
+              pullRequests,
+            })
           }
           onDelete={() => actions.deleteCard(editingCard.id)}
           onClose={() => setModal(null)}
           agent={editingCard.agent}
           canSend={projectDirValid}
           sendHint={sendHint}
-          onSend={(title, description, note, priority, workType) =>
-            handleSend(editingCard.id, title, description, note, priority, workType)
+          onDispatch={(mode, prUrls, fields) =>
+            handleDispatch(editingCard.id, mode, prUrls, fields)
           }
           onDismissAgent={() => actions.clearCardAgent(editingCard.id)}
           github={editingCard.github}

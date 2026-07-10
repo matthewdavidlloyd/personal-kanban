@@ -149,45 +149,43 @@ button {
 /* ---- Board ---- */
 
 .board {
-  display: flex;
-  gap: 0;
-  align-items: stretch;
-  /* Center the lanes when they fit; `safe` falls back to start (no clipping)
+  /* A grid: a swimlane label rail (col 1) + one column per board column; a
+     header row + one row per swimlane (work type). Flat surfaces separated by
+     thin dividers give the "whiteboard" look. grid-template-columns/rows are
+     set inline by Board.tsx (they depend on the column/lane counts). */
+  display: grid;
+  /* Center the tracks when they fit; `safe` falls back to start (no clipping)
      when the board overflows and needs to scroll. Plain `center` is the
      fallback for engines without the `safe` keyword. */
   justify-content: center;
   justify-content: safe center;
+  align-content: stretch;
   height: 100%;
   padding: 24px;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: auto;
 }
 
-/* ---- Column ---- */
-
-.column {
-  /* Flat, flush, full-height lanes on a shared surface (whiteboard feel):
-     no per-lane border or rounding — lanes are separated by thin dividers. */
-  flex: 1 0 300px;
-  max-width: 340px;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background-color: var(--surface-2);
+/* Top-left spacer above the swimlane rail. */
+.rail-corner {
+  background-color: var(--bg);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
-.column + .column {
-  border-left: 1px solid var(--border);
-}
+/* ---- Column headers (top row) ---- */
 
 .column-header {
-  flex: 0 0 auto;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 13px 14px;
   background-color: var(--surface-header);
+  border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
+}
+
+.column-header:last-of-type {
+  border-right: none;
 }
 
 .column-name {
@@ -227,24 +225,105 @@ button {
   color: var(--text);
 }
 
-.column-cards {
-  flex: 1 1 auto;
+/* ---- Swimlane rail (left column), tinted by work type ---- */
+
+.lane-rail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 6px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.lane-rail-last-row {
+  border-bottom: none;
+}
+
+.lane-rail-label {
+  /* Vertical, reading bottom-to-top — keeps the rail narrow (kanban style). */
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  white-space: nowrap;
+}
+
+.lane-rail-review {
+  background-color: color-mix(in srgb, var(--wt-review) 16%, var(--bg));
+}
+.lane-rail-review .lane-rail-label {
+  color: var(--wt-review);
+}
+.lane-rail-coding {
+  background-color: color-mix(in srgb, var(--wt-coding) 16%, var(--bg));
+}
+.lane-rail-coding .lane-rail-label {
+  color: var(--wt-coding);
+}
+.lane-rail-admin {
+  background-color: color-mix(in srgb, var(--wt-admin) 16%, var(--bg));
+}
+.lane-rail-admin .lane-rail-label {
+  color: var(--wt-admin);
+}
+
+/* ---- Lane cell (column × swimlane) ---- */
+
+.lane-cell {
+  position: relative;
   min-height: 0;
+  background-color: var(--surface-2);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.lane-cell-scroll {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 10px 10px 12px;
+  height: 100%;
+  min-height: 0;
+  padding: 10px;
   overflow-y: auto;
 }
 
-.column-empty {
-  margin: 4px 4px;
-  padding: 12px;
-  font-size: 13px;
+.lane-cell-last-col {
+  border-right: none;
+}
+
+.lane-cell-last-row {
+  border-bottom: none;
+}
+
+/* Cell highlights while a card hovers over it. */
+.lane-cell-over {
+  background-color: var(--surface-hover);
+}
+
+/* Per-cell issue count, pinned in the top-right corner (stays put as the cell
+   scrolls; a matching background masks any card sliding underneath). */
+.lane-cell-count {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  z-index: 1;
+  min-width: 17px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
   text-align: center;
   color: var(--text-muted);
-  border: 1px dashed var(--border);
-  border-radius: 8px;
+  background-color: var(--surface-2);
+  border-radius: 9px;
+  pointer-events: none;
+}
+
+.lane-cell-over .lane-cell-count {
+  background-color: var(--surface-hover);
 }
 
 /* ---- Card ---- */
@@ -276,12 +355,6 @@ button {
   transform: rotate(2deg);
 }
 
-/* Column cards area highlights while a card hovers over it. */
-.column-cards-over {
-  background-color: var(--surface-hover);
-  border-radius: 8px;
-}
-
 .card:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
@@ -306,6 +379,19 @@ button {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 9px;
+}
+
+.card-pr-marker {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  border-radius: 999px;
 }
 
 .card-agent-marker {
@@ -387,9 +473,10 @@ button {
 
 /* ---- Work type ---- */
 
-/* Cards are tinted by work-type ("postit" look) rather than carrying a badge.
-   The .worktype-* mapping to --po is kept so the picker in the modal renders
-   in the same hues via the shared .priority-option styles. */
+/* A card's work type is signalled by the swimlane it lives in (see the tinted
+   rail), so cards carry no per-card tint. The .worktype-* → --po mapping is kept
+   only so the Type picker in the modal renders in the matching hues via the
+   shared .priority-option styles. */
 
 .worktype-review {
   --po: var(--wt-review);
@@ -399,26 +486,6 @@ button {
 }
 .worktype-admin {
   --po: var(--wt-admin);
-}
-
-.card-worktype-review {
-  background-color: color-mix(in srgb, var(--wt-review) 22%, var(--surface));
-}
-.card-worktype-coding {
-  background-color: color-mix(in srgb, var(--wt-coding) 22%, var(--surface));
-}
-.card-worktype-admin {
-  background-color: color-mix(in srgb, var(--wt-admin) 22%, var(--surface));
-}
-
-.card-worktype-review:hover {
-  background-color: color-mix(in srgb, var(--wt-review) 30%, var(--surface-hover));
-}
-.card-worktype-coding:hover {
-  background-color: color-mix(in srgb, var(--wt-coding) 30%, var(--surface-hover));
-}
-.card-worktype-admin:hover {
-  background-color: color-mix(in srgb, var(--wt-admin) 30%, var(--surface-hover));
 }
 
 /* ---- Loading ---- */
@@ -671,6 +738,95 @@ button {
 .send-hint {
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.dispatch-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---- Pull requests (edit modal) ---- */
+
+.pr-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.pr-input-row .field-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pr-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px 6px 10px;
+  font-size: 13px;
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.pr-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.pr-breadcrumb .dot {
+  flex: 0 0 auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--text-muted);
+}
+
+.pr-repo {
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pr-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.btn-mini {
+  padding: 3px 9px;
+  font-size: 12px;
+}
+
+.pr-remove {
+  width: 22px;
+  height: 22px;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+}
+
+.pr-remove:hover {
+  background-color: var(--surface-2);
+  color: var(--text);
 }
 
 /* ---- GitHub import (new-card modal) ---- */
