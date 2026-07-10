@@ -10,9 +10,29 @@ const DISPATCH_NAME = "claude-dispatch";
 // eslint-disable-next-line no-control-regex
 const ANSI_SGR = /\x1b\[[0-9;]*m/g;
 
-/** The prompt sent to the agent: "<title>\n\n<description>" (title only if empty). */
+export type DispatchMode = "send" | "fix" | "review";
+
+/** The base prompt: "<title>\n\n<description>" (title only if description empty). */
 export function buildPrompt(title: string, description: string): string {
   return description.trim() ? `${title}\n\n${description}` : title;
+}
+
+/**
+ * Build the dispatch prompt for a mode. Send is just the base prompt; Fix/Review
+ * prepend a `Fix PR:`/`Review PR:` header (singular for one PR, plural for many)
+ * followed by the PR URLs, then the base prompt. See SPEC §Dispatch.
+ */
+export function buildDispatchPrompt(opts: {
+  mode: DispatchMode;
+  title: string;
+  description: string;
+  prUrls: string[];
+}): string {
+  const base = buildPrompt(opts.title, opts.description);
+  if (opts.mode === "send" || opts.prUrls.length === 0) return base;
+  const verb = opts.mode === "fix" ? "Fix" : "Review";
+  const header = `${verb} ${opts.prUrls.length === 1 ? "PR" : "PRs"}:`;
+  return `${header}\n${opts.prUrls.join("\n")}\n\n${base}`;
 }
 
 /**
@@ -31,17 +51,17 @@ export class DispatchError extends Error {}
 /**
  * Dispatch a background Claude Code agent named after the card. Title and prompt
  * are passed as individual argv elements (never interpolated into a shell
- * string), so quoting/injection is a non-issue. Returns instantly with the id.
+ * string), so quoting/injection is a non-issue. The prompt is prebuilt by the
+ * caller (see buildDispatchPrompt) since it varies by mode. Returns the id.
  */
 export async function dispatchToClaude(opts: {
   title: string;
-  description: string;
+  prompt: string;
   projectDir: string;
 }): Promise<{ id: string }> {
-  const prompt = buildPrompt(opts.title, opts.description);
   const command = Command.create(
     DISPATCH_NAME,
-    ["-lc", DISPATCH_SCRIPT, "_", opts.title, prompt],
+    ["-lc", DISPATCH_SCRIPT, "_", opts.title, opts.prompt],
     { cwd: opts.projectDir },
   );
 

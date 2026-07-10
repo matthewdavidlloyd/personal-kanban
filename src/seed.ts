@@ -1,15 +1,31 @@
 import type { BoardState } from "./types";
 
 // Default board used on first launch (no store.json yet) and as the static
-// content for the initial UI. Card order is the array order in each column.
+// content for the initial UI. Card order is the array order in each swimlane.
 export function createSeedState(): BoardState {
   const now = new Date().toISOString();
   return {
     columns: [
-      { id: "backlog", name: "Backlog", cardIds: ["c1", "c2", "c3"] },
-      { id: "in-progress", name: "In Progress", cardIds: ["c4"] },
-      { id: "waiting", name: "Waiting", cardIds: [] },
-      { id: "done", name: "Done", cardIds: ["c5"] },
+      {
+        id: "backlog",
+        name: "Backlog",
+        lanes: { review: [], coding: ["c1", "c2"], admin: ["c3"] },
+      },
+      {
+        id: "in-progress",
+        name: "In Progress",
+        lanes: { review: [], coding: ["c4"], admin: [] },
+      },
+      {
+        id: "waiting",
+        name: "Waiting",
+        lanes: { review: [], coding: [], admin: [] },
+      },
+      {
+        id: "done",
+        name: "Done",
+        lanes: { review: [], coding: ["c5"], admin: [] },
+      },
     ],
     cards: {
       c1: {
@@ -17,8 +33,8 @@ export function createSeedState(): BoardState {
         title: "Wire up drag and drop",
         description: "Use @dnd-kit for reordering and cross-column moves.",
         priority: "high",
-        workType: "coding",
         note: "",
+        pullRequests: [],
         createdAt: now,
         updatedAt: now,
       },
@@ -27,8 +43,8 @@ export function createSeedState(): BoardState {
         title: "Add settings modal",
         description: "One field: the project directory used for dispatches.",
         priority: "medium",
-        workType: "coding",
         note: "",
+        pullRequests: [],
         createdAt: now,
         updatedAt: now,
       },
@@ -37,8 +53,8 @@ export function createSeedState(): BoardState {
         title: "Ship the icon",
         description: "",
         priority: "low",
-        workType: "admin",
         note: "",
+        pullRequests: [],
         createdAt: now,
         updatedAt: now,
       },
@@ -47,8 +63,8 @@ export function createSeedState(): BoardState {
         title: "Persist the board to disk",
         description: "tauri-plugin-store, single store.json in app data dir.",
         priority: "urgent",
-        workType: "coding",
         note: "",
+        pullRequests: [],
         createdAt: now,
         updatedAt: now,
         agent: { id: "900a7040", dispatchedAt: now },
@@ -58,8 +74,8 @@ export function createSeedState(): BoardState {
         title: "Scaffold the Tauri app",
         description: "React + TS template, three plugins registered.",
         priority: "medium",
-        workType: "coding",
         note: "",
+        pullRequests: [],
         createdAt: now,
         updatedAt: now,
       },

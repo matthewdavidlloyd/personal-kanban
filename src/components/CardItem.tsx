@@ -1,7 +1,6 @@
 import { forwardRef } from "react";
 import type { Card } from "../types";
 import { PRIORITY_LABELS, DEFAULT_PRIORITY } from "../priority";
-import { DEFAULT_WORK_TYPE } from "../workType";
 
 interface CardItemProps extends React.HTMLAttributes<HTMLDivElement> {
   card: Card;
@@ -12,16 +11,16 @@ interface CardItemProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * Presentational card. Rendered as the sortable node in a column (via
- * SortableCard, which forwards ref + drag listeners) and as the floating
- * clone inside DragOverlay.
+ * Presentational card. Rendered as the sortable node in a swimlane (via
+ * SortableCard, which forwards ref + drag listeners) and as the floating clone
+ * inside DragOverlay. Cards are visually uniform — the swimlane a card lives in
+ * is its work-type signal, so there's no per-card tint.
  */
 export const CardItem = forwardRef<HTMLDivElement, CardItemProps>(
   ({ card, dragging, overlay, className, ...rest }, ref) => {
     const priority = card.priority ?? DEFAULT_PRIORITY;
-    const workType = card.workType ?? DEFAULT_WORK_TYPE;
 
-    const classes = ["card", `card-worktype-${workType}`];
+    const classes = ["card"];
     if (dragging) classes.push("card-dragging");
     if (overlay) classes.push("card-overlay");
     if (className) classes.push(className);
@@ -34,6 +33,16 @@ export const CardItem = forwardRef<HTMLDivElement, CardItemProps>(
           <span className={`priority-badge priority-${priority}`}>
             {PRIORITY_LABELS[priority]}
           </span>
+          {card.pullRequests && card.pullRequests.length > 0 && (
+            <span
+              className="card-pr-marker"
+              title={`${card.pullRequests.length} linked PR${
+                card.pullRequests.length === 1 ? "" : "s"
+              }`}
+            >
+              {card.pullRequests.length} PR{card.pullRequests.length === 1 ? "" : "s"}
+            </span>
+          )}
           {card.agent && (
             <span
               className="card-agent-marker"

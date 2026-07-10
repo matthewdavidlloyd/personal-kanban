@@ -5,6 +5,11 @@ export type Priority = "urgent" | "high" | "medium" | "low";
 
 export type WorkType = "review" | "coding" | "admin";
 
+export interface PullRequest {
+  number: number; // GitHub PR number
+  url: string; // canonical https URL to the PR
+}
+
 export interface Card {
   id: string; // crypto.randomUUID()
   title: string;
@@ -12,7 +17,10 @@ export interface Card {
   /** Short freeform status line shown on the card face (e.g. "needs self-review"). */
   note: string;
   priority: Priority;
-  workType: WorkType;
+  // No workType field — a card's work type IS the swimlane it lives in (its
+  // Column.lanes key). Derive it via findCardLocation() in board.ts.
+  /** Linked PRs, ordered by link order. Read-only breadcrumbs — never re-synced. */
+  pullRequests: PullRequest[];
   createdAt: string; // ISO
   updatedAt: string; // ISO
   /** Informational breadcrumb of the last dispatch — NOT a live status. */
@@ -30,7 +38,8 @@ export interface Card {
 export interface Column {
   id: string;
   name: string;
-  cardIds: string[]; // ordered — this IS the card order
+  // One ordered list per swimlane (work type). THIS is the card order per cell.
+  lanes: Record<WorkType, string[]>;
 }
 
 export interface Settings {
